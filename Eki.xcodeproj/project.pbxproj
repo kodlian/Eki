@@ -10,6 +10,7 @@
 		3F2E56F119EEB33400B2E1F5 /* Eki.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F2E56F019EEB33400B2E1F5 /* Eki.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3F2E56F719EEB33400B2E1F5 /* Eki.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F2E56EB19EEB33400B2E1F5 /* Eki.framework */; };
 		3F2E56FE19EEB33400B2E1F5 /* EkiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2E56FD19EEB33400B2E1F5 /* EkiTests.swift */; };
+		3F2E570819EEB38000B2E1F5 /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2E570719EEB38000B2E1F5 /* Dispatch.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,7 @@
 		3F2E56F619EEB33400B2E1F5 /* EkiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EkiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F2E56FC19EEB33400B2E1F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F2E56FD19EEB33400B2E1F5 /* EkiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EkiTests.swift; sourceTree = "<group>"; };
+		3F2E570719EEB38000B2E1F5 /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 		3F2E56ED19EEB33400B2E1F5 /* Eki */ = {
 			isa = PBXGroup;
 			children = (
+				3F2E570719EEB38000B2E1F5 /* Dispatch.swift */,
 				3F2E56F019EEB33400B2E1F5 /* Eki.h */,
 				3F2E56EE19EEB33400B2E1F5 /* Supporting Files */,
 			);
@@ -209,6 +212,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F2E570819EEB38000B2E1F5 /* Dispatch.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

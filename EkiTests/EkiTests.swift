@@ -8,6 +8,7 @@
 
 import Cocoa
 import XCTest
+import Eki
 
 class EkiTests: XCTestCase {
     
@@ -21,16 +22,27 @@ class EkiTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
+    func testMainSync() {
+        let expt = self.expectationWithDescription("Dispatch")
+
+        sync(){
+            expt.fulfill()
+        }
+   
+
+        self.waitForExpectationsWithTimeout(2, handler: nil)
+
     }
     
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock() {
-            // Put the code you want to measure the time of here.
+    func testMainASync() {
+        let expt = self.expectationWithDescription("Dispatch")
+        async() {
+            expt.fulfill()
         }
+        self.waitForExpectationsWithTimeout(2, handler: nil)
+        
     }
+    
+
     
 }
