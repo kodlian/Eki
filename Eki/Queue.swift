@@ -86,11 +86,11 @@ public enum Queue {
 
     
     //MARK: Dispatch multiple blocks
-    public func dispatchBlocks(blocks:[() -> ()]) -> Group {
-        return dispatchBlocks(blocks, wait:false)
+    public func dispatchBlocks(blocks:[() -> ()])  {
+        dispatchBlocks(blocks, wait:false)
     }
     
-    public func dispatchBlocks(blocks:[() -> ()], wait:Bool) -> Group {
+    public func dispatchBlocks(blocks:[() -> ()], wait:Bool){
         let group = Group();
         assert(blocks.count > 0,"Must have somnething to perform")
 
@@ -100,8 +100,6 @@ public enum Queue {
         if wait == true {
             group.wait()
         }
-
-        return group
     }
 
 
