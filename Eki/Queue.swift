@@ -91,11 +91,11 @@ public enum Queue {
     }
     
     public func dispatchBlocks(blocks:[() -> ()], wait:Bool){
-        let group = Group();
+        let group = Group(defaultQueue:self);
         assert(blocks.count > 0,"Must have somnething to perform")
 
         for block in blocks {
-            group.dispatchOnQueue(self, block:  block)
+            group.dispatchBlock(block)
         }
         if wait == true {
             group.wait()
