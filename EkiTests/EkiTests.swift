@@ -22,12 +22,12 @@ class EkiTests: XCTestCase {
         super.tearDown()
     }
     
-    func testMainSync() {
+    func testBackgroundSync() {
         let expt = self.expectationWithDescription("Dispatch")
 
-        sync(){
+        Queue.Background.dispatchBlock({
             expt.fulfill()
-        }
+        }, wait:true)
    
 
         self.waitForExpectationsWithTimeout(2, handler: nil)
@@ -36,7 +36,7 @@ class EkiTests: XCTestCase {
     
     func testMainASync() {
         let expt = self.expectationWithDescription("Dispatch")
-        async() {
+        Queue.Main.dispatchBlock(){
             expt.fulfill()
         }
         self.waitForExpectationsWithTimeout(2, handler: nil)
