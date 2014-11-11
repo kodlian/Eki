@@ -28,7 +28,7 @@ public struct Group{
     
 
     //MARK: Dispatch blocks
-    public func dispatchBlock(block:() -> (), onQueue queue:Queue? = nil)  -> Group {
+    public func dispatchBlock(block:() -> Void, onQueue queue:Queue? = nil)  -> Group {
         dispatch_group_async(group,queue?.dispatchQueue() ?? defaultDispatchQueue, block)
         return self
     }
@@ -36,7 +36,7 @@ public struct Group{
         dispatchBlock(operation.block, onQueue:operation.queue)
         return self
     }
-    public func dispatchBlocks(blocks:[() -> ()], onQueue queue:Queue? = nil) -> Group {
+    public func dispatchBlocks(blocks:[() -> Void], onQueue queue:Queue? = nil) -> Group {
         for block in blocks {
             dispatchBlock(block,onQueue:queue)
         }
@@ -50,7 +50,7 @@ public struct Group{
     }
     
     //MARK: Others
-    public func notifyCompletionOnBlock(block:() -> (), queue:Queue? = nil) -> Group {
+    public func notifyCompletionOnBlock(block:() -> Void, queue:Queue? = nil) -> Group {
         dispatch_group_notify(group,queue?.dispatchQueue() ?? defaultDispatchQueue, block);
         
         return self
@@ -62,7 +62,7 @@ public struct Group{
 }
 func test() {
    
-    let g = Group(defaultQueue:Queue.Main).dispatchBlock{ () -> () in
+    let g = Group(defaultQueue:Queue.Main).dispatchBlock{ () -> Void in
         
     }
     

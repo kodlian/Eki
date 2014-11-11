@@ -53,12 +53,12 @@ public enum Queue {
     }
     
     //MARK: Dispatch single block
-    public func dispatchBlock(block:() -> ()) -> Queue{
+    public func dispatchBlock(block:() -> Void) -> Queue{
         dispatch_async(dispatchQueue(), block)
         return self
     }
     
-    public func dispatchBlock(block:() -> (), wait:Bool) -> Queue {
+    public func dispatchBlock(block:() -> Void, wait:Bool) -> Queue {
         let q = dispatchQueue()
         if wait == true {
             dispatch_sync(q, block) // prevent deadlock
@@ -68,12 +68,12 @@ public enum Queue {
         }
         return self
     }
-    public func dispatchAfter(delay:NSTimeInterval, block:() -> ()) -> Queue {
+    public func dispatchAfter(delay:NSTimeInterval, block:() -> Void) -> Queue {
         dispatch_after(dispatch_time_t(delay) * dispatch_time_t(NSEC_PER_SEC), dispatchQueue(), block)
         return self
     }
 
-    public func dispatchWithBarrierBlock(block:() -> (), wait:Bool = false) -> Queue {
+    public func dispatchWithBarrierBlock(block:() -> Void, wait:Bool = false) -> Queue {
         let q = dispatchQueue()
         if wait == true {
             dispatch_barrier_sync(q, block) // prevent deadlock
@@ -86,11 +86,11 @@ public enum Queue {
 
     
     //MARK: Dispatch multiple blocks
-    public func dispatchBlocks(blocks:[() -> ()])  {
+    public func dispatchBlocks(blocks:[() -> Void])  {
         dispatchBlocks(blocks, wait:false)
     }
     
-    public func dispatchBlocks(blocks:[() -> ()], wait:Bool){
+    public func dispatchBlocks(blocks:[() -> Void], wait:Bool) {
         let group = Group(defaultQueue:self);
         assert(blocks.count > 0,"Must have somnething to perform")
 

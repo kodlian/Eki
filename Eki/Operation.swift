@@ -14,7 +14,7 @@ Define a dispatch operation
 */
 public struct Operation {
     public var queue:Queue
-    public var block:() -> ()
+    public var block:() -> Void
     
     public func dispatch() {
         queue.dispatchBlock(block)

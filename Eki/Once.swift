@@ -12,7 +12,7 @@ import Foundation
 @abstract
 Convenient method for dispatch_once
 */
-public func  dispatchOnce(block:() -> ()) {
+public func  dispatchOnce(block:() -> Void) {
     var token : dispatch_once_t = 0
     dispatch_once(&token,block)
 }
