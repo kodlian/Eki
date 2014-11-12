@@ -17,10 +17,10 @@ public struct Operation {
     public var block:() -> Void
     
     public func dispatch() {
-        queue.dispatchBlock(block)
+        queue.dispatch(block)
     }
     public func dispatchByWaiting(wait:Bool) {
-        queue.dispatchBlock(block, wait:wait)
+        queue.dispatch(block, wait:wait)
     }
 }
 

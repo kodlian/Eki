@@ -53,15 +53,15 @@ public enum Queue {
     }
     
     //MARK: Dispatch single block
-    public func dispatchBlock(block:() -> Void) -> Queue{
+    public func dispatch(block:() -> Void) -> Queue{
         dispatch_async(dispatchQueue(), block)
         return self
     }
     
-    public func dispatchBlock(block:() -> Void, wait:Bool) -> Queue {
+    public func dispatch(block:() -> Void, wait:Bool) -> Queue {
         let q = dispatchQueue()
         if wait == true {
-            dispatch_sync(q, block) // prevent deadlock
+            dispatch_sync(q, block) //TODO: prevent deadlock
         }
         else {
             dispatch_async(q, block)
@@ -72,40 +72,40 @@ public enum Queue {
         dispatch_after(dispatch_time_t(delay) * dispatch_time_t(NSEC_PER_SEC), dispatchQueue(), block)
         return self
     }
-
-    public func dispatchWithBarrierBlock(block:() -> Void, wait:Bool = false) -> Queue {
+    public func dispatchWithBarrier(block:() -> Void, wait:Bool = false) -> Queue {
         let q = dispatchQueue()
         if wait == true {
-            dispatch_barrier_sync(q, block) // prevent deadlock
+            dispatch_barrier_sync(q, block) //TODO: prevent deadlock
         }
         else {
             dispatch_barrier_async(q, block)
         }
         return self
     }
-
     
     //MARK: Dispatch multiple blocks
-    public func dispatchBlocks(blocks:[() -> Void])  {
-        dispatchBlocks(blocks, wait:false)
+    public func dispatch(blocks:[() -> Void]) -> Queue {
+        dispatch(blocks, wait:false)
+        return self
     }
-    
-    public func dispatchBlocks(blocks:[() -> Void], wait:Bool) {
+    public func dispatch(blocks:[() -> Void], wait:Bool) -> Queue {
         let group = Group(defaultQueue:self);
         assert(blocks.count > 0,"Must have somnething to perform")
 
         for block in blocks {
-            group.dispatchBlock(block)
+            group.dispatch(block)
         }
         if wait == true {
             group.wait()
         }
+        return self
     }
 
 
     //MARK: Others
     public func applyIteration(iteration:UInt, toBlock block:(i:UInt) -> ()) {
         dispatch_apply(iteration, dispatchQueue(),block);
+        
     }
 
     internal func dispatchQueue() -> dispatch_queue_t {
