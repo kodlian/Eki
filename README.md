@@ -1,3 +1,4 @@
+
 # Eki
 
 ![Logo](/kodlian/Eki/raw/master/logo.png)
@@ -7,4 +8,4 @@
 Delicious wrapper for grand central dispatch.
 
 ## TODO
-The current project works only for OS X. But the code haven't any dependance with Cocoa and should be able to compile for iOS
+The current project works only for OS X. But the code haven't any dependance with Cocoa and should be able to compile for iOS.
