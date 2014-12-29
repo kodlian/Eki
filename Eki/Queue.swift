@@ -69,7 +69,10 @@ public enum Queue {
         return self
     }
     public func dispatchAfter(delay:NSTimeInterval, block:() -> Void) -> Queue {
-        dispatch_after(dispatch_time_t(delay) * dispatch_time_t(NSEC_PER_SEC), dispatchQueue(), block)
+        dispatch_after(  dispatch_time(
+            DISPATCH_TIME_NOW,
+            Int64(delay * Double(NSEC_PER_SEC))
+            ), dispatchQueue(), block)
         return self
     }
     public func dispatchWithBarrier(block:() -> Void, wait:Bool = false) -> Queue {
