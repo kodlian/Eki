@@ -61,9 +61,9 @@ public struct Group{
     }
 }
 func test() {
-   
-    let g = Group(defaultQueue:Queue.Main).dispatch{ () -> Void in
-        
-    }
+
+//    let g = Group(defaultQueue:Queue.Main).dispatch{ () -> Void in
+//        
+//    }
     
 }

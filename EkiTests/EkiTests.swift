@@ -25,7 +25,7 @@ class EkiTests: XCTestCase {
     func testBackgroundSync() {
         let expt = self.expectationWithDescription("Dispatch")
 
-        Queue.Background.dispatchBlock({
+        Queue.Background.dispatch({
             expt.fulfill()
         }, wait:true)
    
@@ -36,7 +36,7 @@ class EkiTests: XCTestCase {
     
     func testMainASync() {
         let expt = self.expectationWithDescription("Dispatch")
-        Queue.Main.dispatchBlock(){
+        Queue.Main.dispatch(){
             expt.fulfill()
         }
         self.waitForExpectationsWithTimeout(2, handler: nil)
