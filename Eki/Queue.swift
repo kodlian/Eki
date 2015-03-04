@@ -75,7 +75,11 @@ public enum Queue {
             ), dispatchQueue(), block)
         return self
     }
-    public func dispatchWithBarrier(block:() -> Void, wait:Bool = false) -> Queue {
+    public func dispatchWithBarrier(block:() -> Void) -> Queue {
+        dispatch_barrier_async(dispatchQueue(), block)
+        return self
+    }
+    public func dispatchWithBarrier(block:() -> Void, wait:Bool) -> Queue {
         let q = dispatchQueue()
         if wait == true {
             dispatch_barrier_sync(q, block) //TODO: prevent deadlock
@@ -104,9 +108,8 @@ public enum Queue {
         return self
     }
 
-
     //MARK: Others
-    public func applyIteration(iteration:UInt, toBlock block:(i:UInt) -> ()) {
+    public func applyIteration(iteration:Int, toBlock block:(i:Int) -> ()) {
         dispatch_apply(iteration, dispatchQueue(),block);
         
     }
@@ -132,11 +135,5 @@ public enum Queue {
     }
     
 }
-
-
-
-
-
-
 
 
