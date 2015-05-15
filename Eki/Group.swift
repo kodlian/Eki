@@ -65,8 +65,8 @@ public struct Group {
         dispatch_group_notify(group,queue.dispatchQueue(), block);
         return self
     }
-    public func wait() -> Group {
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    public func wait(time:NSTimeInterval? = nil) -> Group {
+        dispatch_group_wait(group, dispatch_time_t(timeInterval: time));
         return self
     }
 }

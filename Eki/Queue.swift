@@ -8,13 +8,30 @@
 
 import Foundation
 
+extension NSTimeInterval {
+    var nanosecondsRepresentation:Double {
+        return self * Double(NSEC_PER_SEC)
+    }
+}
+
+extension dispatch_time_t {
+    init(timeInterval:NSTimeInterval?) {
+        if let i = timeInterval {
+            self.init(i.nanosecondsRepresentation)
+        }
+        else {
+            self.init(DISPATCH_TIME_FOREVER)
+        }
+    }
+}
+
+
 /**
 @abstract
 A wrapper for Grand Central Dispatch Queue
 */
 public enum Queue {
-    
-    
+
     //MARK: cases
     case Main
     case UserInteractive
@@ -71,7 +88,7 @@ public enum Queue {
     public func dispatchAfter(delay:NSTimeInterval, block:() -> Void) -> Queue {
         dispatch_after(  dispatch_time(
             DISPATCH_TIME_NOW,
-            Int64(delay * Double(NSEC_PER_SEC))
+            Int64(delay.nanosecondsRepresentation)
             ), dispatchQueue(), block)
         return self
     }
