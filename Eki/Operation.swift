@@ -53,11 +53,11 @@ public struct Operation:Chainable {
     }
     public func chainOnQueue(queue:Queue, block:() -> Void) -> Chainable{
         let dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
-        return chainOnQueue(self.queue,dispatchBlock:dispatchBlock)
+        return chainOnQueue(queue,dispatchBlock:dispatchBlock)
         
     }
     public func chainOperation(operation:Operation) -> Chainable {
-        return chainOnQueue(self.queue,dispatchBlock:operation.block)
+        return chainOnQueue(operation.queue,dispatchBlock:operation.block)
     }
   
 }
