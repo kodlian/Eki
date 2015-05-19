@@ -15,7 +15,7 @@ Chainable type
 public protocol Chainable {
     func chain( block:() -> Void) -> Chainable
     func chainOnQueue(queue:Queue, block:() -> Void) -> Chainable
-    func chainOperation(operation:Operation) -> Chainable
+    func chain(operation:Operation) -> Chainable
 }
 
 /**
@@ -26,21 +26,21 @@ public struct Operation:Chainable {
     public let queue:Queue
     public let block:() -> Void
     
-    public init(queue:Queue,block:() -> Void) {
+    public init(queue:Queue = Queue.Background, block:() -> Void) {
         self.queue = queue
         self.block = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
     }
-    private init(queue:Queue,dispatchBlock:() -> Void) {
+    private init(queue:Queue = Queue.Background, dispatchBlock:() -> Void) {
         self.queue = queue
         self.block = dispatchBlock
     }
     
     //MARK: - Dispatch
-    public func dispatch() {
-        queue.dispatch(block)
+    public func async() {
+        queue.async(block)
     }
-    public func dispatchByWaiting(wait:Bool) {
-        queue.dispatch(block, wait:wait)
+    public func sync() {
+        queue.sync(block)
     }
     
     //MARK: - Chain
@@ -56,11 +56,8 @@ public struct Operation:Chainable {
         return chainOnQueue(queue,dispatchBlock:dispatchBlock)
         
     }
-    public func chainOperation(operation:Operation) -> Chainable {
-        return chainOnQueue(operation.queue,dispatchBlock:operation.block)
+    public func chain(operation:Operation) -> Chainable {
+        return chainOnQueue(operation.queue, dispatchBlock:operation.block)
     }
   
 }
-
-
-

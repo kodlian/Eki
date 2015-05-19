@@ -20,48 +20,46 @@ public struct Group {
         }
     }
     private var defaultDispatchQueue = Queue.Background.dispatchQueue()
-    
-    
+  
     init(defaultQueue:Queue = Queue.Background) {
         self.defaultQueue = defaultQueue
     }
-    
 
     //MARK: Dispatch
-    public func dispatch(block:() -> Void)  -> Group {
-        dispatchOnQueue(nil,block:block)
+    public func async(block:() -> Void)  -> Group {
+        asyncOnQueue(nil,block:block)
         return self
     }
-    public func dispatchOnQueue(queue:Queue?,block:() -> Void )  -> Group {
+    public func asyncOnQueue(queue:Queue?,block:() -> Void )  -> Group {
         dispatch_group_async(group,  queue?.dispatchQueue() ?? defaultDispatchQueue, block)
         return self
     }
-    public func dispatchOperation(operation:Operation)  -> Group {
-        dispatchOnQueue(operation.queue, block:operation.block)
+    public func async(operation:Operation)  -> Group {
+        asyncOnQueue(operation.queue, block:operation.block)
         return self
     }
-    public func dispatch(blocks:[() -> Void]) -> Group {
-        dispatchOnQueue(nil,blocks:blocks)
+    public func async(blocks:[() -> Void]) -> Group {
+        asynchOnQueue(nil,blocks:blocks)
         return self
     }
-    public func dispatchOnQueue(queue:Queue?, blocks:[() -> Void]) -> Group {
+    public func asynchOnQueue(queue:Queue?, blocks:[() -> Void]) -> Group {
         for block in blocks {
-            dispatchOnQueue(queue,block:block)
+            asyncOnQueue(queue,block:block)
         }
         return self
     }
-    public func dispatchOperations(operations:[Operation]) -> Group {
+    public func async(operations:[Operation]) -> Group {
         for operation in operations {
-            dispatchOperation(operation)
+            async(operation)
         }
         return self
     }
     
     //MARK: Others
-    public func notifyCompletion(block:() -> Void) -> Group {
-        return notifyCompletionOnQueue(defaultQueue,block: block)
+    public func notify(block:() -> Void) -> Group {
+        return notifyOnQueue(defaultQueue,block: block)
     }
-    public func notifyCompletionOnQueue(queue:Queue, block:() -> Void) -> Group {
+    public func notifyOnQueue(queue:Queue, block:() -> Void) -> Group {
         dispatch_group_notify(group,queue.dispatchQueue(), block);
         return self
     }
