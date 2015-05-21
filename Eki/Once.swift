@@ -9,17 +9,15 @@
 import Foundation
 
 /**
-@abstract
 A token to be initilized and stored for use with once().
 */
-public final class Token {
+public final class OnceToken {
     internal var dispatchToken = dispatch_once_t(0)
 }
 
 /**
-@abstract
-Convenient method for dispatch_once
+Execute a block once and only once.
 */
-public func  once(token:Token, block:() -> Void) {
+public func once(token:OnceToken, block:() -> Void) {
     dispatch_once(&token.dispatchToken,block)
 }
