@@ -69,15 +69,15 @@ public struct Group {
 }
 
 //MARK: Operator
-func <<(g:Group,block:() -> Void) -> Group {
+public func <<(g:Group,block:() -> Void) -> Group {
     return g.async(block)
 }
-func <<(g:Group,operation:Operation) -> Group {
+public func <<(g:Group,operation:Operation) -> Group {
     return g.async(operation)
 }
-func <<(g:Group,blocks:[() -> Void]) -> Group {
+public func <<(g:Group,blocks:[() -> Void]) -> Group {
     return g.async(blocks)
 }
-func <<(g:Group,operations:[Operation]) -> Group {
+public func <<(g:Group,operations:[Operation]) -> Group {
     return g.async(operations)
 }

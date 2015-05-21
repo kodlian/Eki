@@ -65,9 +65,9 @@ public struct Operation:Chainable {
 
 //MARK: Operator
 infix operator <> {associativity left precedence 140}
-func <> (c:Chainable, block:() -> Void) -> Chainable {
+public func <> (c:Chainable, block:() -> Void) -> Chainable {
     return c.chain(block)
 }
-func <> (c:Chainable, operation:Operation) -> Chainable {
+public func <> (c:Chainable, operation:Operation) -> Chainable {
     return c.chain(operation)
 }

@@ -117,14 +117,14 @@ public enum Queue {
 }
 
 //MARK: Operator
-func <<(q:Queue,block:() -> Void) -> Queue {
+public func <<(q:Queue,block:() -> Void) -> Queue {
     return q.async(block)
 }
-func <<(q:Queue,blocks:[() -> Void]) -> Queue {
+public func <<(q:Queue,blocks:[() -> Void]) -> Queue {
     return q.async(blocks)
 }
 infix operator |<< { associativity left precedence 140  }
-func |<< (q:Queue,block:() -> Void) -> Queue {
+public func |<< (q:Queue,block:() -> Void) -> Queue {
     return q.barrierAsync(block)
 }
 
