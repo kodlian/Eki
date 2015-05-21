@@ -8,7 +8,6 @@
 
 import Foundation
 /**
-@abstract
 A wrapper for Grand Central Dispatch Semaphore
 */
 public struct Semaphore {
@@ -44,7 +43,7 @@ public struct Semaphore {
     }
     
     public func signal(){
-        dispatch_semaphore_signal(semaphore);
+        dispatch_semaphore_signal(semaphore)
     }
     
     
@@ -70,8 +69,7 @@ public extension Semaphore {
 }
 
 /**
-@abstract
-A Mutex is essentially the same thing as a Sempahore exept that only the block that locked the mutext is supposed to unlock it.
+A Mutex is essentially the same thing as a binary semaphore exept that only the block that locked the mutext is supposed to unlock it.
 */
 public struct Mutex {
     private var semaphore:Semaphore
@@ -87,8 +85,7 @@ public struct Mutex {
 }
 
 /**
-@abstract
-Convenient class to lock access to an object with a mutext
+Convenient class to lock access to an object with an internal mutext
 */
 public struct LockedObject<T:AnyObject> {
     private var object:T

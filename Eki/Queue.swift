@@ -8,26 +8,7 @@
 
 import Foundation
 
-extension NSTimeInterval {
-    var nanosecondsRepresentation:Double {
-        return self * Double(NSEC_PER_SEC)
-    }
-}
-
-extension dispatch_time_t {
-    init(timeInterval:NSTimeInterval?) {
-        if let i = timeInterval {
-            self.init(i.nanosecondsRepresentation)
-        }
-        else {
-            self.init(DISPATCH_TIME_FOREVER)
-        }
-    }
-}
-
-
 /**
-@abstract
 A wrapper for Grand Central Dispatch Queue
 */
 public enum Queue {
@@ -43,7 +24,6 @@ public enum Queue {
     
     //MARK: type
     /**
-    @abstract
     Customn queue type
     */
     public enum CustomType {
@@ -99,28 +79,18 @@ public enum Queue {
         }
         return self
     }
-    
+
     //MARK: Dispatch multiple blocks
     public func async(blocks:[() -> Void]) -> Queue {
-        async(blocks, wait:false)
-        return self
-    }
-    public func async(blocks:[() -> Void], wait:Bool) -> Queue {
-        let group = Group(defaultQueue:self);
-        assert(blocks.count > 0,"Must have somnething to perform")
-
         for block in blocks {
-            group.async(block)
-        }
-        if wait == true {
-            group.wait()
+            async(block)
         }
         return self
     }
 
     //MARK: Others
     public func iterate(iteration:Int, block:(i:Int) -> ()) {
-        dispatch_apply(iteration, dispatchQueue(),block);
+        dispatch_apply(iteration, dispatchQueue(),block)
     }
 
     internal func dispatchQueue() -> dispatch_queue_t {
@@ -140,9 +110,40 @@ public enum Queue {
         case .Custom(let queue):
             return queue
         }
-        
     }
     
+    
+    
+}
+
+//MARK: Operator
+func <<(q:Queue,block:() -> Void) -> Queue {
+    return q.async(block)
+}
+func <<(q:Queue,blocks:[() -> Void]) -> Queue {
+    return q.async(blocks)
+}
+infix operator |<< { associativity left precedence 140  }
+func |<< (q:Queue,block:() -> Void) -> Queue {
+    return q.barrierAsync(block)
+}
+
+//MARK: Time
+extension NSTimeInterval {
+    var nanosecondsRepresentation:Double {
+        return self * Double(NSEC_PER_SEC)
+    }
+}
+
+extension dispatch_time_t {
+    init(timeInterval:NSTimeInterval?) {
+        if let i = timeInterval {
+            self.init(i.nanosecondsRepresentation)
+        }
+        else {
+            self.init(DISPATCH_TIME_FOREVER)
+        }
+    }
 }
 
 

@@ -9,7 +9,6 @@
 import Foundation
 
 /**
-@abstract
 Chainable type
 */
 public protocol Chainable {
@@ -19,7 +18,6 @@ public protocol Chainable {
 }
 
 /**
-@abstract
 A dispatch operation is defined by a queue and a block
 */
 public struct Operation:Chainable {
@@ -42,6 +40,9 @@ public struct Operation:Chainable {
     public func sync() {
         queue.sync(block)
     }
+    public func cancel() {
+        dispatch_block_cancel(block)
+    }
     
     //MARK: - Chain
     private func chainOnQueue(queue:Queue, dispatchBlock:() -> Void) -> Chainable{
@@ -60,4 +61,13 @@ public struct Operation:Chainable {
         return chainOnQueue(operation.queue, dispatchBlock:operation.block)
     }
   
+}
+
+//MARK: Operator
+infix operator <> {associativity left precedence 140}
+func <> (c:Chainable, block:() -> Void) -> Chainable {
+    return c.chain(block)
+}
+func <> (c:Chainable, operation:Operation) -> Chainable {
+    return c.chain(operation)
 }

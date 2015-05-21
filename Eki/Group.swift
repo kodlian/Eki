@@ -9,11 +9,10 @@
 import Foundation
 
 /**
-@abstract
 A wrapper for Grand Central Dispatch Group
 */
 public struct Group {
-    private var group = dispatch_group_create();
+    private var group = dispatch_group_create()
     public var defaultQueue:Queue = Queue.Background {
         didSet {
             defaultDispatchQueue = defaultQueue.dispatchQueue()
@@ -60,11 +59,25 @@ public struct Group {
         return notifyOnQueue(defaultQueue,block: block)
     }
     public func notifyOnQueue(queue:Queue, block:() -> Void) -> Group {
-        dispatch_group_notify(group,queue.dispatchQueue(), block);
+        dispatch_group_notify(group,queue.dispatchQueue(), block)
         return self
     }
     public func wait(time:NSTimeInterval? = nil) -> Group {
-        dispatch_group_wait(group, dispatch_time_t(timeInterval: time));
+        dispatch_group_wait(group, dispatch_time_t(timeInterval: time))
         return self
     }
+}
+
+//MARK: Operator
+func <<(g:Group,block:() -> Void) -> Group {
+    return g.async(block)
+}
+func <<(g:Group,operation:Operation) -> Group {
+    return g.async(operation)
+}
+func <<(g:Group,blocks:[() -> Void]) -> Group {
+    return g.async(blocks)
+}
+func <<(g:Group,operations:[Operation]) -> Group {
+    return g.async(operations)
 }
