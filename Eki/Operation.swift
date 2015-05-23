@@ -20,47 +20,49 @@ public protocol Chainable {
 /**
 A dispatch operation is defined by a queue and a block
 */
-public struct Operation:Chainable {
+public class Operation:Chainable {
     public let queue:Queue
-    public let block:() -> Void
+    internal let dispatchBlock:dispatch_block_t
+    public var block:() -> Void { return dispatchBlock }
     
     public init(queue:Queue = Queue.Background, block:() -> Void) {
         self.queue = queue
-        self.block = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
+        self.dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
     }
-    private init(queue:Queue = Queue.Background, dispatchBlock:() -> Void) {
+    private init(queue:Queue = Queue.Background, dispatchBlock:dispatch_block_t) {
         self.queue = queue
-        self.block = dispatchBlock
+        self.dispatchBlock = dispatchBlock
     }
     
     //MARK: - Dispatch
     public func async() {
-        queue.async(block)
+        queue.async(dispatchBlock)
     }
     public func sync() {
-        queue.sync(block)
+        queue.sync(dispatchBlock)
     }
     public func cancel() {
-        dispatch_block_cancel(block)
+        dispatch_block_cancel(dispatchBlock)
     }
     
     //MARK: - Chain
-    private func chainOnQueue(queue:Queue, dispatchBlock:() -> Void) -> Chainable{
-        dispatch_block_notify(self.block, queue.dispatchQueue(), dispatchBlock)
+    private func chainOnQueue(queue:Queue, dispatchBlock block:dispatch_block_t) -> Chainable{
+
+
+        dispatch_block_notify(self.dispatchBlock, queue.dispatchQueue(), block)
         return Operation(queue:queue,dispatchBlock: block)
     }
-    public func chain( block:() -> Void) -> Chainable{
-        return chainOnQueue(self.queue,block:block)
+    public func chain(operation:Operation) -> Chainable {
+        return chainOnQueue(operation.queue, dispatchBlock:operation.dispatchBlock)
     }
     public func chainOnQueue(queue:Queue, block:() -> Void) -> Chainable{
         let dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
         return chainOnQueue(queue,dispatchBlock:dispatchBlock)
         
     }
-    public func chain(operation:Operation) -> Chainable {
-        return chainOnQueue(operation.queue, dispatchBlock:operation.block)
+    public func chain( block:() -> Void) -> Chainable{
+        return chainOnQueue(self.queue,block:block)
     }
-  
 }
 
 //MARK: Operator
