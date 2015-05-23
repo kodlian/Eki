@@ -13,6 +13,9 @@ A token to be initilized and stored for use with once().
 */
 public final class OnceToken {
     internal var dispatchToken = dispatch_once_t(0)
+    public init() {
+        
+    }
 }
 
 /**
