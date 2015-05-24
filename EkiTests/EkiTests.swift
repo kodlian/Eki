@@ -35,10 +35,10 @@ class EkiTests: XCTestCase {
     }
     
     func testCustomAsync() {
-        let expt = self.expectationWithDescription("Dispatch")
+        let expt = self.expectationWithDescription("CustomAsync")
         let q = Queue(name: "foo", kind: .Concurrent)
         var a = 0
-    
+        
         q <<< {
             a++
             } |<| {
@@ -54,7 +54,7 @@ class EkiTests: XCTestCase {
     }
     
     func testIterate() {
-        let expt = self.expectationWithDescription("Operation")
+        let expt = self.expectationWithDescription("Iterate")
 
         var c = 0
         Queue.UserInitiated.iterate(4) { i  in
@@ -73,18 +73,18 @@ class EkiTests: XCTestCase {
 
         let q = Queue(name: "myqueue", kind: .Concurrent)
         var test = [0,0]
-        let task = Task(queue:Queue.UserInitiated) {
+        let task =  Queue.UserInitiated + {
             test[0] = 1
         }
         
-        task <> {
+        task.async() <> {
             test = test.reverse()
             } <> Queue.Main + {
                 expt.fulfill()
                 XCTAssertEqual(test, [0,1], "Blocks have not been executed on a chain")
         }
         
-        task.async()
+        
 
         self.waitForExpectationsWithTimeout(4, handler: nil)
     }
@@ -101,5 +101,24 @@ class EkiTests: XCTestCase {
         XCTAssertEqual(c, 1, "Block have not been executed one time")
     }
 
-    
+    func testGroup() {
+        let expt = self.expectationWithDescription("Group")
+
+        var test = [0,0,0,0];
+        let queue = Queue(name: "myqueue", kind: .Concurrent)
+        let grp = Group(queue: queue)
+        for i in 0..<4 {
+            grp <<< {
+                test[i] = i
+            }
+        }
+        grp.notify {
+            expt.fulfill()
+            XCTAssertEqual(test, [0,1,2,3], "GRoup 's blocks have not been executed correctly")
+
+        }
+        
+        self.waitForExpectationsWithTimeout(4, handler: nil)
+
+    }
 }
