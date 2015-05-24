@@ -22,27 +22,84 @@ class EkiTests: XCTestCase {
         super.tearDown()
     }
     
-    func testBackgroundSync() {
+    func testAsync() {
         let expt = self.expectationWithDescription("Dispatch")
 
-        Queue.Background.dispatch({
-            expt.fulfill()
-        }, wait:true)
+        Queue.Background <<< {
+            
+            } <<< {
+                expt.fulfill()
+        }
    
-
         self.waitForExpectationsWithTimeout(2, handler: nil)
-
     }
     
-    func testMainASync() {
+    func testCustomAsync() {
         let expt = self.expectationWithDescription("Dispatch")
-        Queue.Main.dispatch(){
-            expt.fulfill()
+        let q = Queue(name: "foo", kind: .Concurrent)
+        var a = 0
+    
+        q <<< {
+            a++
+            } |<| {
+                if a == 1 {
+                    a++
+                }
+            } <<< {
+                expt.fulfill()
+                XCTAssertEqual(a, 2, "Block barrier have not been executed correctly")
+                
         }
         self.waitForExpectationsWithTimeout(2, handler: nil)
-        
     }
     
+    func testIterate() {
+        let expt = self.expectationWithDescription("Operation")
+
+        var c = 0
+        Queue.UserInitiated.iterate(4) { i  in
+            c++
+            if c == 4 {
+                expt.fulfill()
+            }
+        }
+        
+        
+        self.waitForExpectationsWithTimeout(2, handler: nil)
+    }
+    
+    func testTaskChain() {
+        let expt = self.expectationWithDescription("Operation")
+
+        let q = Queue(name: "myqueue", kind: .Concurrent)
+        var test = [0,0]
+        let task = Task(queue:Queue.UserInitiated) {
+            test[0] = 1
+        }
+        
+        task <> {
+            test = test.reverse()
+            } <> Queue.Main + {
+                expt.fulfill()
+                XCTAssertEqual(test, [0,1], "Blocks have not been executed on a chain")
+        }
+        
+        task.async()
+
+        self.waitForExpectationsWithTimeout(4, handler: nil)
+    }
+    
+    func testOnce() {
+        let t = OnceToken()
+        var c = 0
+        for i in 0...4 {
+            once(t) {
+                c++
+            }
+        }
+        
+        XCTAssertEqual(c, 1, "Block have not been executed one time")
+    }
 
     
 }
