@@ -12,8 +12,7 @@ import Foundation
 Chainable type
 */
 public protocol Chainable {
-    func chain( block:() -> Void) -> Chainable
-    func chainOnQueue(queue:Queue, block:() -> Void) -> Chainable
+    func chain(block:() -> Void) -> Chainable
     func chain(task:Task) -> Chainable
 }
 
@@ -56,13 +55,9 @@ public class Task:Chainable {
     public func chain(task:Task) -> Chainable {
         return chainOnQueue(task.queue, dispatchBlock:task.dispatchBlock)
     }
-    public func chainOnQueue(queue:Queue, block:() -> Void) -> Chainable{
-        let dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
-        return chainOnQueue(queue,dispatchBlock:dispatchBlock)
-        
-    }
     public func chain(block:() -> Void) -> Chainable {
-        return chainOnQueue(self.queue,block:block)
+        let dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
+        return chainOnQueue(self.queue,dispatchBlock:dispatchBlock)
     }
 }
 

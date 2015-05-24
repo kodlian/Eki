@@ -20,7 +20,7 @@ public struct Group {
     }
     private var defaultDispatchQueue = Queue.Background.dispatchQueue()
   
-    init(queue:Queue = Queue.Background) {
+    public init(queue:Queue = Queue.Background) {
         self.queue = queue
     }
 
@@ -59,10 +59,7 @@ public struct Group {
         return notifyOnQueue(queue, dispatchBlock: block)
     }
     public func notify(task:Task) -> Group {
-        return notifyOnQueue(queue,dispatchBlock: task.block)
-    }
-    public func notifyOnQueue(queue:Queue, block:() -> Void) -> Group {
-        return notifyOnQueue(queue, dispatchBlock: block)
+        return notifyOnQueue(queue,dispatchBlock: task.dispatchBlock)
     }
     private func notifyOnQueue(queue:Queue, dispatchBlock:dispatch_block_t) -> Group {
         dispatch_group_notify(group,queue.dispatchQueue(), dispatchBlock)
