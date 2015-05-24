@@ -56,15 +56,14 @@ public struct Group {
     
     //MARK: Others
     public func notify(block:() -> Void) -> Group {
-        return notifyOnQueue(queue, dispatchBlock: block)
+        let task = Task(queue: queue, block: block)
+        return notify(task)
     }
     public func notify(task:Task) -> Group {
-        return notifyOnQueue(queue,dispatchBlock: task.dispatchBlock)
-    }
-    private func notifyOnQueue(queue:Queue, dispatchBlock:dispatch_block_t) -> Group {
-        dispatch_group_notify(group,queue.dispatchQueue(), dispatchBlock)
+        dispatch_group_notify(group,task.queue.dispatchQueue(), task.dispatchBlock)
         return self
     }
+
     public func wait(time:NSTimeInterval? = nil) -> Group {
         dispatch_group_wait(group, dispatch_time_t(timeInterval: time))
         return self

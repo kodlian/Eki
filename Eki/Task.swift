@@ -47,17 +47,13 @@ public class Task:Chainable {
     }
     
     //MARK: - Chain
-    private func chainOnQueue(queue:Queue, dispatchBlock block:dispatch_block_t) -> Chainable{
-
-        dispatch_block_notify(self.dispatchBlock, queue.dispatchQueue(), block)
-        return Task(queue:queue,dispatchBlock: block)
-    }
     public func chain(task:Task) -> Chainable {
-        return chainOnQueue(task.queue, dispatchBlock:task.dispatchBlock)
+        dispatch_block_notify(self.dispatchBlock, task.queue.dispatchQueue(), task.dispatchBlock)
+        return task
     }
     public func chain(block:() -> Void) -> Chainable {
-        let dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
-        return chainOnQueue(self.queue,dispatchBlock:dispatchBlock)
+        let task = Task(queue: queue, block: block)
+        return chain(task)
     }
 }
 
