@@ -26,7 +26,7 @@ public enum Queue {
     /**
     Customn queue type
     */
-    public enum CustomType {
+    public enum Kind {
         case Concurrent, Serial
         
         func createDispatchQueueWithName(name:String) -> dispatch_queue_t {
@@ -45,8 +45,8 @@ public enum Queue {
     
 
     //MARK: init
-    public init(name:String, type:CustomType){
-         self = .Custom(queue: type.createDispatchQueueWithName(name))
+    public init(name:String, kind:Kind){
+         self = .Custom(queue: kind.createDispatchQueueWithName(name))
     }
     
     //MARK: Dispatch single block
@@ -117,14 +117,15 @@ public enum Queue {
 }
 
 //MARK: Operator
-public func <<(q:Queue,block:() -> Void) -> Queue {
+infix operator <<< { associativity left precedence 160  }
+public func <<< (q:Queue,block:() -> Void) -> Queue {
     return q.async(block)
 }
-public func <<(q:Queue,blocks:[() -> Void]) -> Queue {
+public func <<< (q:Queue,blocks:[() -> Void]) -> Queue {
     return q.async(blocks)
 }
-infix operator |<< { associativity left precedence 140  }
-public func |<< (q:Queue,block:() -> Void) -> Queue {
+infix operator |<| { associativity left precedence 160  }
+public func |<| (q:Queue,block:() -> Void) -> Queue {
     return q.barrierAsync(block)
 }
 
