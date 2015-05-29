@@ -36,7 +36,7 @@ You access them like so:
 Queue.Background
 ```
 
-###Dispatch
+### Dispatch
 You dispatch a block on queue asynchronously by using `async` or synchronously by using `sync`:
 
 ```swift
@@ -112,35 +112,6 @@ Queue.Background.isCurrent // Check if background is current queue
 ```
 Take notice that will work only on **Custom Queues** created with the designed initializer `Queue(name:String, kind:Queue.Custom.Kind)`, the **Main queue** and **Global queues**.
 
-## Group
-A group allows to associate multiple blocks to be dispatched asynchronously.
-
-```swift
-let g = Group(queue:.Utility) // By default the group queue is Background
-
-g.async {
-	// Block dispatched on the group's queue.
-} <<< {
-	// Block dispatched on the group's queue using the operator.
-} <<< Task(queue:.Main) {
-	// Block dispatched on the Main queue (see Task).
-}
-
-let blocks:[()-> Void] = ...
-g.async(blocks) // Blocks dispatched on the group's queue.
-```
-There is two ways to track group's blocks execution:
-```swift
-g.notify {
-	// Block executed on the group queue when blocks previously dispatched on the group have been executed.
-}
-g.notify(Queue.Main + {
-	// Block executed on the Main queue when blocks previously dispatched on the group have been executed.
-})
-
-g.wait() // Wait on the current process the group's blocks execution.
-```
-
 ## Task
 A task represents a block to be dispatched on a queue.
 
@@ -176,6 +147,35 @@ task.async() <> {
 } <> Queue.Main + {
 	// Do some stuff after previous block execution on the main queue
 }
+```
+
+## Group
+A group allows to associate multiple blocks to be dispatched asynchronously.
+
+```swift
+let g = Group(queue:.Utility) // By default the group queue is Background
+
+g.async {
+	// Block dispatched on the group's queue.
+} <<< {
+	// Block dispatched on the group's queue using the operator.
+} <<< Task(queue:.Main) {
+	// Block dispatched on the Main queue (see Task).
+}
+
+let blocks:[()-> Void] = ...
+g.async(blocks) // Blocks dispatched on the group's queue.
+```
+There is two ways to track group's blocks execution:
+```swift
+g.notify {
+	// Block executed on the group queue when blocks previously dispatched on the group have been executed.
+}
+g.notify(Queue.Main + {
+	// Block executed on the Main queue when blocks previously dispatched on the group have been executed.
+})
+
+g.wait() // Wait on the current process the group's blocks execution.
 ```
 
 ## Once
