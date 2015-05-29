@@ -121,4 +121,68 @@ class EkiTests: XCTestCase {
         self.waitForExpectationsWithTimeout(4, handler: nil)
 
     }
+    
+
+    func testIsCurrentOnBackground() {
+        let expt = self.expectationWithDescription("testIsCurrentOnBackground")
+        
+        Queue.Background.async { () -> Void in
+            XCTAssertTrue(Queue.Background.isCurrent, "Background should be current")
+            XCTAssertFalse(Queue.Main.isCurrent, "Main should not be current")
+            expt.fulfill()
+        }
+        
+
+        self.waitForExpectationsWithTimeout(4, handler: nil)
+    }
+
+    func testIsCurrentOnCustom() {
+        let expt = self.expectationWithDescription("testIsCurrentOnCustom")
+        let q = Queue(name: "myqueue", kind: .Concurrent)
+
+        q.async { () -> Void in
+            XCTAssertTrue(q.isCurrent, "The custom queue should be current")
+            XCTAssertFalse(Queue.Main.isCurrent, "Main should not be current")
+            expt.fulfill()
+        }
+        
+        
+        self.waitForExpectationsWithTimeout(4, handler: nil)
+    }
+    
+    func testCurrentQueue() {
+        let expt = self.expectationWithDescription("testCurrentQueue")
+        
+        Queue.Background.async { () -> Void in
+            let current = Queue.current
+            switch current  {
+            case Queue.Background:
+                println()
+            default:
+                XCTFail("current should be background")
+            }
+            
+            Queue.current.async {
+                XCTAssertTrue(Queue.Background.isCurrent, "Background should be current")
+                expt.fulfill()
+            }
+        }
+
+        self.waitForExpectationsWithTimeout(4, handler: nil)
+    }
+    
+    func testCurrentQueueOnCustom() {
+        let expt = self.expectationWithDescription("testCurrentQueue")
+        let q = Queue(name: "myqueue", kind: .Concurrent)
+
+         q.async { () -> Void in
+    
+            Queue.current.async {
+                XCTAssertTrue(q.isCurrent, "The custom queue should be current")
+                expt.fulfill()
+            }
+        }
+
+        self.waitForExpectationsWithTimeout(4, handler: nil)
+    }
 }

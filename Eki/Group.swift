@@ -15,10 +15,10 @@ public struct Group {
     private var group = dispatch_group_create()
     public var queue:Queue = Queue.UserInitiated {
         didSet {
-            defaultDispatchQueue = queue.dispatchQueue()
+            defaultDispatchQueue = queue.dispatchQueue
         }
     }
-    private var defaultDispatchQueue = Queue.Background.dispatchQueue()
+    private var defaultDispatchQueue = Queue.Background.dispatchQueue
   
     public init(queue:Queue = Queue.Background) {
         self.queue = queue
@@ -30,7 +30,7 @@ public struct Group {
         return self
     }
     public func asyncOnQueue(queue:Queue?,block:() -> Void )  -> Group {
-        dispatch_group_async(group,  queue?.dispatchQueue() ?? defaultDispatchQueue, block)
+        dispatch_group_async(group,  queue?.dispatchQueue ?? defaultDispatchQueue, block)
         return self
     }
     public func async(task:Task)  -> Group {
@@ -60,7 +60,7 @@ public struct Group {
         return notify(task)
     }
     public func notify(task:Task) -> Group {
-        dispatch_group_notify(group,task.queue.dispatchQueue(), task.dispatchBlock)
+        dispatch_group_notify(group,task.queue.dispatchQueue, task.dispatchBlock)
         return self
     }
 

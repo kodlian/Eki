@@ -48,7 +48,7 @@ public class Task:Chainable {
     
     //MARK: - Chain
     public func chain(task:Task) -> Chainable {
-        dispatch_block_notify(self.dispatchBlock, task.queue.dispatchQueue(), task.dispatchBlock)
+        dispatch_block_notify(self.dispatchBlock, task.queue.dispatchQueue, task.dispatchBlock)
         return task
     }
     public func chain(block:() -> Void) -> Chainable {

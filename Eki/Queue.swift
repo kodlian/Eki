@@ -12,8 +12,9 @@ import Foundation
 A wrapper for Grand Central Dispatch Queue
 */
 public enum Queue {
+    static var currentKey = 0 //"Eki.queue"
+    static var currentToken = OnceToken() //"Eki.queue"
 
-    //MARK: cases
     case Main
     case UserInteractive
     case UserInitiated
@@ -22,6 +23,9 @@ public enum Queue {
     case Background
     case Custom(queue:dispatch_queue_t)
     
+    private static let allDefaults:[Queue] = [Main, UserInteractive, UserInitiated, Default, Utility , Background]
+    private static var allKeys = Set<String>()
+
     //MARK: type
     /**
     Customn queue type
@@ -46,36 +50,41 @@ public enum Queue {
 
     //MARK: init
     public init(name:String, kind:Kind){
-         self = .Custom(queue: kind.createDispatchQueueWithName(name))
+        self = .Custom(queue: kind.createDispatchQueueWithName(name))
+        setCurrentSpecific()
     }
     
     //MARK: Dispatch single block
     public func async(block:() -> Void) -> Queue{
-        dispatch_async(dispatchQueue(), block)
+        dispatch_async(dispatchQueue, block)
         return self
     }
     public func sync(block:() -> Void) -> Queue {
-        dispatch_sync(dispatchQueue(), block) //TODO: prevent deadlock
+        if isCurrent {
+            block()
+        }
+        else {
+            dispatch_sync(dispatchQueue, block)
+        }
         return self
     }
     public func after(delay:NSTimeInterval, doBlock block:() -> Void) -> Queue {
         dispatch_after(  dispatch_time(
             DISPATCH_TIME_NOW,
             Int64(delay.nanosecondsRepresentation)
-            ), dispatchQueue(), block)
+            ), dispatchQueue, block)
         return self
     }
     public func barrierAsync(block:() -> Void) -> Queue {
-        dispatch_barrier_async(dispatchQueue(), block)
+        dispatch_barrier_async(dispatchQueue, block)
         return self
     }
-    public func barrierSync(block:() -> Void, wait:Bool) -> Queue {
-        let q = dispatchQueue()
-        if wait == true {
-            dispatch_barrier_sync(q, block) //TODO: prevent deadlock
+    public func barrierSync(block:() -> Void) -> Queue {
+        if isCurrent {
+            assertionFailure("You can't send a barrier on the same queue.")
         }
         else {
-            dispatch_barrier_async(q, block)
+            dispatch_barrier_sync(dispatchQueue, block)
         }
         return self
     }
@@ -90,10 +99,10 @@ public enum Queue {
 
     //MARK: Others
     public func iterate(iteration:Int, block:(i:Int) -> ()) {
-        dispatch_apply(iteration, dispatchQueue(),block)
+        dispatch_apply(iteration, dispatchQueue,block)
     }
 
-    internal func dispatchQueue() -> dispatch_queue_t {
+    internal var dispatchQueue:dispatch_queue_t {
         switch (self) {
         case .Main:
             return dispatch_get_main_queue()
@@ -112,8 +121,47 @@ public enum Queue {
         }
     }
     
+    //MARK: Current Queuess
+    public static func initOnceGlobalQueueSpecifics() {
+        once(Queue.currentToken, { () -> Void in
+            for q in Queue.allDefaults {
+                q.setCurrentSpecific()
+            }
+        })
+    }
     
+    private func setCurrentSpecific() {
+        let q = dispatchQueue
+        let opPtr = Unmanaged<dispatch_queue_t>.passUnretained(q).toOpaque()
+        dispatch_queue_set_specific(q,
+            &Queue.currentKey,  UnsafeMutablePointer<Void>(opPtr) , nil)
+    }
     
+    public var isCurrent:Bool {
+        Queue.initOnceGlobalQueueSpecifics()
+        
+        let currentPtr = dispatch_get_specific(&Queue.currentKey)
+        let queuePtr = dispatch_queue_get_specific(self.dispatchQueue, &Queue.currentKey)
+        return currentPtr == queuePtr &&  currentPtr != nil
+    }
+    public static var current:Queue? {
+        initOnceGlobalQueueSpecifics()
+        
+        let ptr = dispatch_get_specific(&Queue.currentKey)
+        if ptr != nil {
+            let currentQueue = Unmanaged<dispatch_queue_t>.fromOpaque(COpaquePointer(ptr)).takeUnretainedValue()
+            
+            for q in Queue.allDefaults {
+                if q.dispatchQueue == currentQueue {
+                    return q
+                }
+            }
+
+            return Queue.Custom(queue: currentQueue)
+
+        }
+        return nil
+    }
 }
 
 //MARK: Operator
@@ -146,5 +194,4 @@ extension dispatch_time_t {
         }
     }
 }
-
 
