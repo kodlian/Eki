@@ -21,11 +21,11 @@ Pod::Spec.new do |s|
 
   #  When using multiple platforms
   s.ios.deployment_target = "8.0"
-  s.osx.deployment_target = "10.9"
+  s.osx.deployment_target = "10.10"
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
-  s.source       = { :git => "http://gitlab/kodlian/eki.git", :tag => "0.0.1" }
+  s.source       = { :git => "https://github.com/kodlian/eki.git", :tag => "0.0.1" }
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
