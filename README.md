@@ -19,7 +19,7 @@ Eki is a framework to manage easily concurrency in your apps that wraps the powe
 ## Queue
 Internally GCD manages a pool of threads which process dispatch queues and invoke blocks submitted to them.
 
-### Global queues
+### Main and Global queues
 
  - `Main`
  - `UserInteractive`
@@ -37,32 +37,32 @@ Queue.Background
 ```
 
 ###Dispatch
-You dispatch a block on queue asynchronously by using `async`:
+You dispatch a block on queue asynchronously by using `async` or synchronously by using `sync`:
 
 ```swift
+// Asynchronously
 Queue.Utility.async {
 	...
 }
-```
-Or by using the operator shortcut:
-
-```swift
+// Or asynchronously using the operator shortcut
 Queue.Utility <<< {
 	...
 }
-```
-You can send multiple blocks to a queue by using chaining:
 
+// Synchronously
+Queue.Utility.sync { // Eki will prevent deadlock if you submit a sync on the current queue
+	...
+}
+```
+
+You can send multiple blocks to a queue by using chaining:
 ```swift
 Queue.Utility <<< {
 	// Block 1
 } <<< {
 	// Block 2
 }
-```
-Or by submitting an array of blocks:
-
-```swift
+// Or by submitting an array of blocks:
 let blocks = [{
 	// Block 1
 }, {
@@ -74,14 +74,15 @@ Queue.Utility.async(blocks)
 
 ### Custom Queue
 
-You can also create your own queue (serial or concurrent):
+You can create your own queue (serial or concurrent):
 
 ```swift
-let queue = Queue("QueueName", type:.Concurrent)
+let queue = Queue("QueueName", kind:.Concurrent)
 queue.async{
 	...
 }
 ```
+
 ### Dispatch barrier
 Dispatch a block asynchronously with barrier:
 
@@ -103,11 +104,19 @@ Queue.Background.iterate(4) { i in
 }
 ```
 
+### Current Queue
+
+```swift
+Queue.current // Get current queue
+Queue.Background.isCurrent // Check if background is current queue
+```
+Take notice that will work only on **Custom Queues** created with the designed initializer `Queue(name:String, kind:Queue.Custom.Kind)`, the **Main queue** and **Global queues**.
+
 ## Group
 A group allows to associate multiple blocks to be dispatched asynchronously.
 
 ```swift
-let g = Group(queue:.Utility)
+let g = Group(queue:.Utility) // By default the group queue is Background
 
 g.async {
 	// Block dispatched on the group's queue.
@@ -123,8 +132,11 @@ g.async(blocks) // Blocks dispatched on the group's queue.
 There is two ways to track group's blocks execution:
 ```swift
 g.notify {
-	// Block executed when blocks previously dispatched on the group have been executed.
+	// Block executed on the group queue when blocks previously dispatched on the group have been executed.
 }
+g.notify(Queue.Main + {
+	// Block executed on the Main queue when blocks previously dispatched on the group have been executed.
+})
 
 g.wait() // Wait on the current process the group's blocks execution.
 ```
@@ -151,7 +163,7 @@ g.async(tasks) // Tasks dispatched on a group.
 A task can be chained with a `block` or an another `Task`
 
 ```swift
-task.chain { // Or use .chain()
+task.chain {
 	// Do some stuff after task's block execution on same queue
 }.chain(Task(queue:.Main) {
 	// Do some stuff after previous block execution on the main queue
