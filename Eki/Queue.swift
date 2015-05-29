@@ -137,30 +137,29 @@ public enum Queue {
             &Queue.currentKey,  UnsafeMutablePointer<Void>(opPtr) , nil)
     }
     
+    private static func getCurrentPointer() ->  UnsafeMutablePointer<Void> {
+        let currentPtr = dispatch_get_specific(&Queue.currentKey)
+        assert(currentPtr != nil, "Use only with custom queues initialized with Queue(name:String, kind:Queue.Custom.Kind), the Main queue and Global queues")
+        return currentPtr
+    }
     public var isCurrent:Bool {
         Queue.initOnceGlobalQueueSpecifics()
-        
-        let currentPtr = dispatch_get_specific(&Queue.currentKey)
+  
         let queuePtr = dispatch_queue_get_specific(self.dispatchQueue, &Queue.currentKey)
-        return currentPtr == queuePtr &&  currentPtr != nil
+        return Queue.getCurrentPointer() == queuePtr
     }
-    public static var current:Queue? {
+    public static var current:Queue {
         initOnceGlobalQueueSpecifics()
+
+        let currentQueue = Unmanaged<dispatch_queue_t>.fromOpaque(COpaquePointer(getCurrentPointer())).takeUnretainedValue()
         
-        let ptr = dispatch_get_specific(&Queue.currentKey)
-        if ptr != nil {
-            let currentQueue = Unmanaged<dispatch_queue_t>.fromOpaque(COpaquePointer(ptr)).takeUnretainedValue()
-            
-            for q in Queue.allDefaults {
-                if q.dispatchQueue == currentQueue {
-                    return q
-                }
+        for q in Queue.allDefaults {
+            if q.dispatchQueue == currentQueue {
+                return q
             }
-
-            return Queue.Custom(queue: currentQueue)
-
         }
-        return nil
+        
+        return Queue.Custom(queue: currentQueue)
     }
 }
 
