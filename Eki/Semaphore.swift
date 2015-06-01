@@ -33,17 +33,17 @@ public struct Semaphore {
 
     public init(_ kind:Kind = .Binary) {
         self.kind = kind
-        let ressource = kind.unitsCount()
-        semaphore = dispatch_semaphore_create(ressource)
+        let resource = kind.unitsCount()
+        semaphore = dispatch_semaphore_create(resource)
     }
     
-    //MARK: - Sempahore core method
-    public func wait(time:NSTimeInterval? = nil) {
-        dispatch_semaphore_wait(semaphore,dispatch_time_t(timeInterval: time))
+    //MARK: - Semaphore core method
+    public func wait(time:NSTimeInterval? = nil) -> Bool {
+        return dispatch_semaphore_wait(semaphore,dispatch_time_t(timeInterval: time)) == 0
     }
     
-    public func signal(){
-        dispatch_semaphore_signal(semaphore)
+    public func signal() -> Bool{
+        return dispatch_semaphore_signal(semaphore) > 0
     }
     
     
@@ -60,11 +60,11 @@ public extension Semaphore {
 
 //MARK: - Edsger Dijkstra naming - Dutch
 public extension Semaphore {
-    public func P(time: NSTimeInterval? = nil) {
-        self.wait(time: time)
+    public func P(time: NSTimeInterval? = nil) -> Bool {
+        return self.wait(time: time)
     }
-    public func V() {
-        self.signal()
+    public func V()  -> Bool {
+        return self.signal()
     }
 }
 
