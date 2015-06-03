@@ -64,9 +64,8 @@ public struct Group {
         return self
     }
 
-    public func wait(time:NSTimeInterval? = nil) -> Group {
-        dispatch_group_wait(group, dispatch_time_t(timeInterval: time))
-        return self
+    public func wait(time:NSTimeInterval? = nil) -> Bool {
+        return dispatch_group_wait(group, dispatch_time_t(timeInterval: time)) == 0
     }
 }
 
