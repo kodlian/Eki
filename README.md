@@ -8,11 +8,12 @@
 [![Language](http://img.shields.io/badge/language-swift-orange.svg?style=flat
              )](https://developer.apple.com/swift)
 
-<center>
+<p align="center">
 ![Eki](logo.png)  
 <br/>
 Eki is a framework to manage easily concurrency in your apps that wraps the powerful API Grand Central Dispatch.
-</center>
+</p>
+
 ##Requirements
  - iOS 8.0+ / Mac OS X 10.10+
  - Xcode 6.3
