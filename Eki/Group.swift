@@ -13,38 +13,28 @@ A wrapper for Grand Central Dispatch Group
 */
 public struct Group {
     private var group = dispatch_group_create()
-    public var queue:Queue = Queue.UserInitiated {
-        didSet {
-            defaultDispatchQueue = queue.dispatchQueue
-        }
-    }
-    private var defaultDispatchQueue = Queue.Background.dispatchQueue
+    public var queue:Queue = Queue.UserInitiated
   
     public init(queue:Queue = Queue.Background) {
         self.queue = queue
     }
 
+    public init(tasks:[Task]) {
+        self.init()
+        async(tasks)
+    }
+    
     //MARK: Dispatch
     public func async(block:() -> Void)  -> Group {
-        asyncOnQueue(nil,block:block)
-        return self
-    }
-    public func asyncOnQueue(queue:Queue?,block:() -> Void )  -> Group {
-        dispatch_group_async(group,  queue?.dispatchQueue ?? defaultDispatchQueue, block)
-        return self
+        return async(queue + block)
     }
     public func async(task:Task)  -> Group {
-        asyncOnQueue(task.queue, block:task.block)
+        dispatch_group_async(group,  task.queue.dispatchQueue, task.dispatchBlock)
         return self
     }
+  
     public func async(blocks:[() -> Void]) -> Group {
-        asynchOnQueue(nil,blocks:blocks)
-        return self
-    }
-    public func asynchOnQueue(queue:Queue?, blocks:[() -> Void]) -> Group {
-        for block in blocks {
-            asyncOnQueue(queue,block:block)
-        }
+        async(blocks.map{ self.queue + $0 })
         return self
     }
     public func async(tasks:[Task]) -> Group {
@@ -54,10 +44,17 @@ public struct Group {
         return self
     }
     
+    //MARK: - Manually
+    public func enter() {
+        dispatch_group_enter(group)
+    }
+    public func leave() {
+        dispatch_group_leave(group)
+    }
+    
     //MARK: Others
     public func notify(block:() -> Void) -> Group {
-        let task = Task(queue: queue, block: block)
-        return notify(task)
+        return notify(queue + block)
     }
     public func notify(task:Task) -> Group {
         dispatch_group_notify(group,task.queue.dispatchQueue, task.dispatchBlock)
@@ -67,6 +64,14 @@ public struct Group {
     public func wait(time:NSTimeInterval? = nil) -> Bool {
         return dispatch_group_wait(group, dispatch_time_t(timeInterval: time)) == 0
     }
+    
+    
+}
+
+// MARK: Equatable
+extension Group: Equatable { }
+public func ==(lhs: Group, rhs: Group) -> Bool {
+    return lhs.group == rhs.group
 }
 
 //MARK: Operator
