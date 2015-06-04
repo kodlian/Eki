@@ -1,18 +1,19 @@
-# Eki
+
+# Eki #
+
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat
             )](http://mit-license.org)
 [![Platform](http://img.shields.io/badge/platform-iOS%20%26%20OSX-lightgrey.svg?style=flat
              )](https://developer.apple.com/resources/)
 [![Language](http://img.shields.io/badge/language-swift-orange.svg?style=flat
              )](https://developer.apple.com/swift)
-             
-[<img align="left" src="logo.png" hspace="20">](#logo)
 
+<center>
+![Eki](logo.png)  
+<br/>
 Eki is a framework to manage easily concurrency in your apps that wraps the powerful API Grand Central Dispatch.
-
-
-
-## Requirements
+</center>
+##Requirements
  - iOS 8.0+ / Mac OS X 10.10+
  - Xcode 6.3
 
@@ -55,7 +56,7 @@ Queue.Utility.sync { // Eki will prevent deadlock if you submit a sync on the cu
 }
 ```
 
-You can send multiple blocks to a queue by using chaining:
+You can send multiple blocks to a queue:
 ```swift
 Queue.Utility <<< {
 	// Block 1
@@ -74,10 +75,10 @@ Queue.Utility.async(blocks)
 
 ### Custom Queue
 
-You can create your own queue (serial or concurrent):
+Create your own queue (serial or concurrent):
 
 ```swift
-let queue = Queue("QueueName", kind:.Concurrent)
+let queue = Queue(name:"QueueName", kind:.Concurrent)
 queue.async{
 	...
 }
@@ -87,7 +88,7 @@ queue.async{
 Dispatch a block asynchronously with barrier:
 
 ```swift
-let queue:Queue = Queue("QueueName", type:.Concurrent)
+let queue:Queue = Queue(name:"QueueName", type:.Concurrent)
 ...
 queue |<| { // Or barrierAsync { }
 	// This block will be executed on the queue only after all previous submitted blocks have been executed
@@ -95,12 +96,19 @@ queue |<| { // Or barrierAsync { }
 	// This block will be executed only after the previous barrier block have completed
 }
 ```
+### Schedule
+
+```swift
+Queue.Background.after(2) {
+    // Do some stuff on Background after 2 seconds
+}
+```
 
 ### Iterate on a Queue
 
 ```swift
 Queue.Background.iterate(4) { i in
-    // Do some stuff 4 times
+    // Do some stuff on Background 4 times
 }
 ```
 
@@ -116,17 +124,17 @@ Take notice that will work only on **Custom Queues** created with the designed i
 A task represents a block to be dispatched on a queue.
 
 ```swift
-let task = Task(queue:.Utility) {
+let t = Task(queue:.Utility) {
 	...
 }
 // Or
-let task = Queue.Utility + {
+let t = Queue.Utility + {
 	...
 }
 
-task.async() // Dispatch asynchronously
+t.async() // Dispatch asynchronously
 
-group.async(task) // Dispatch on a group
+group.async(t) // Dispatch on a group
 
 let tasks:[Task] = ...
 g.async(tasks) // Tasks dispatched on a group.
@@ -134,18 +142,18 @@ g.async(tasks) // Tasks dispatched on a group.
 A task can be chained with a `block` or an another `Task`
 
 ```swift
-task.chain {
-	// Do some stuff after task's block execution on same queue
+t.chain {
+	// Executed after t on same queue
 }.chain(Task(queue:.Main) {
-	// Do some stuff after previous block execution on the main queue
+	// Executed after previous block on the main queue
 })
-task.async()
+t.async()
 
-// Or
-task.async() <> {
-	// Do some stuff after task's block execution on same queue
+// Or chain directly after async and use the operator shortcut
+t.async() <> {  
+	// Executed after t on same queue
 } <> Queue.Main + {
-	// Do some stuff after previous block execution on the main queue
+	// Executed after previous block on the main queue
 }
 ```
 
@@ -193,33 +201,35 @@ once(token) {
 ## Semaphore
 There is three kinds of semaphore:
 
- - `Binary` resource initialized to 1
- - `Barrier` resource initialized to 0
- - `Counting(resource:UInt16)` ressource initialized to the given parameter
+|	Kind 				    	    	  	    | Initial Resource(s)     |
+| :------------------------------ | :--------------------- |
+| Binary  												| 		1      |
+| Barrier     									  | 		0      |
+| Counting(resource:UInt16)       | 		custom      |
 
 Initialize a semaphore:
 
 ```swift
-let sem = Sempahore(type:.Binary)
+let sem = Semaphore(.Binary)
 ```
 
 You can increment/decrement a resource on the semaphore by using `wait/signal` methods:
 
 ```swift
 sem.wait()
-// Do some stuff when a ressource is available
+// Do some stuff when a resource is available
 sem.signal()
 ```
 Or by using the `perform` convenient method with a closure:
 
 ```swift
 sem.perform {
-	// Do some stuff when a ressource is available
+	// Do some stuff when a resource is available
 }
 ```
 
 ### Mutex
-A **mutex** is essentially the same thing as a **binary semaphore** exept that only the block that locked the ressource is supposed to unlock it.
+A **mutex** is essentially the same thing as a **binary semaphore** exept that only the block that locked the resource is supposed to unlock it.
 
 ```swift
 let m = Mutex()
