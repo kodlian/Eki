@@ -24,7 +24,6 @@ public enum Queue {
     case Custom(queue:dispatch_queue_t)
     
     private static let allDefaults:[Queue] = [Main, UserInteractive, UserInitiated, Default, Utility , Background]
-    private static var allKeys = Set<String>()
 
     //MARK: type
     /**
@@ -46,7 +45,6 @@ public enum Queue {
            return dispatch_queue_create(name,type)
         }
     }
-    
 
     //MARK: init
     public init(name:String, kind:Kind){
