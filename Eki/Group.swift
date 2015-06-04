@@ -11,7 +11,7 @@ import Foundation
 /**
 A wrapper for Grand Central Dispatch Group
 */
-public struct Group {
+public class Group {
     private var group = dispatch_group_create()
     public var queue:Queue = Queue.UserInitiated
   
@@ -19,7 +19,7 @@ public struct Group {
         self.queue = queue
     }
 
-    public init(tasks:[Task]) {
+    public convenience init(tasks:[Task]) {
         self.init()
         async(tasks)
     }
