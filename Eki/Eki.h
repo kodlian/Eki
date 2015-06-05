@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Jérémy Marchand. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 //! Project version number for Eki.
 FOUNDATION_EXPORT double EkiVersionNumber;
