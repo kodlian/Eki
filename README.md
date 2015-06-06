@@ -7,6 +7,9 @@
              )](https://developer.apple.com/resources/)
 [![Language](http://img.shields.io/badge/language-swift-orange.svg?style=flat
              )](https://developer.apple.com/swift)
+[![Issues](https://img.shields.io/github/issues/kodlian/Eki.svg?style=flat
+                        )](https://github.com/kodlian/Eki/issues)
+[![Cocoapod](http://img.shields.io/cocoapods/v/Eki.svg?style=flat)](http://cocoadocs.org/docsets/Eki/)
 
 <p align="center">
 <img src="logo.png" alt="logo"/>
@@ -230,7 +233,7 @@ sem.perform {
 ```
 
 ### Mutex
-A **mutex** is essentially the same thing as a **binary semaphore** exept that only the block that locked the resource is supposed to unlock it.
+A **mutex** is essentially the same thing as a **binary semaphore** except that only the block that locked the resource is supposed to unlock it.
 
 ```swift
 let m = Mutex()
@@ -254,4 +257,4 @@ l.access { obj in
 ```
 ## Use with [cocoapods](http://cocoapods.org/)
 
-Add `pod 'Eki', :git => 'https://github.com/kodlian/Eki.git'` to your `Podfile` and run `pod install`.
+Add `pod 'Eki'` to your `Podfile` and run `pod install`.

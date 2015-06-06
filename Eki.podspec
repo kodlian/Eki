@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
   s.name         = "Eki"
-  s.version      = "0.0.1"
+  s.version      = "1.0.0"
   s.summary      = "Delicious wrapper for grand central dispatch"
 
   s.homepage     = "http://gitlab/kodlian/eki"
