@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.version      = "1.0.0"
   s.summary      = "Delicious wrapper for grand central dispatch"
 
-  s.homepage     = "https://gitlab/kodlian/eki"
+  s.homepage     = "https://github.com/kodlian/eki"
 
   # ―――  Spec License  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
