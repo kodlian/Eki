@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.version      = "1.0.0"
   s.summary      = "Delicious wrapper for grand central dispatch"
 
-  s.homepage     = "http://gitlab/kodlian/eki"
+  s.homepage     = "https://gitlab/kodlian/eki"
 
   # ―――  Spec License  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
-  s.author             = "kodlian"
+  s.author             = "Jérémy Marchand"
   s.social_media_url   = "http://twitter.com/kodlian"
 
   # ――― Platform Specifics ――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
