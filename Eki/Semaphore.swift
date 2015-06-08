@@ -101,3 +101,14 @@ public struct LockedObject<T:AnyObject> {
     }
 }
 
+//MARK: Operator
+public func <<< (semaphore:Semaphore,block:() -> Void) -> Semaphore {
+    semaphore.perform(block)
+    return semaphore
+}
+public prefix func ++ (semaphore: Semaphore) {
+    semaphore.signal()
+}
+public prefix func -- (semaphore: Semaphore) {
+    semaphore.wait()
+}
