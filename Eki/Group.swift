@@ -87,3 +87,9 @@ public func <<< (g:Group,blocks:[() -> Void]) -> Group {
 public func <<< (g:Group,tasks:[Task]) -> Group {
     return g.async(tasks)
 }
+public postfix func ++ (group: Group) {
+    group.enter()
+}
+public postfix func -- (group: Group) {
+    group.leave()
+}
