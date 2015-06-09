@@ -16,6 +16,11 @@ public final class OnceToken {
     public init() {
         
     }
+    
+    public func perform(block:() -> Void) {
+        once(self, block)
+    }
+
 }
 
 /**
