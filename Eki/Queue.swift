@@ -119,6 +119,15 @@ public enum Queue {
         }
     }
     
+    //MARK: Suspend & Resume
+    public func suspend() {
+       dispatch_suspend(dispatchQueue)
+    }
+    
+    public func resume() {
+        dispatch_suspend(dispatchQueue)
+    }
+    
     //MARK: Current Queuess
     public static func initOnceGlobalQueueSpecifics() {
         once(Queue.currentToken, { () -> Void in
