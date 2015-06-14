@@ -33,8 +33,11 @@ public struct Semaphore {
 
     public init(_ kind:Kind = .Binary) {
         self.kind = kind
-        let resource = kind.unitsCount()
-        semaphore = dispatch_semaphore_create(resource)
+        semaphore = dispatch_semaphore_create(kind.unitsCount())
+    }
+    public init(resource:UInt16){
+        self.kind = .Counting(resource:resource)
+        semaphore = dispatch_semaphore_create(kind.unitsCount())
     }
     
     //MARK: - Semaphore core method
@@ -78,7 +81,7 @@ public struct Mutex {
         semaphore = Semaphore(.Binary)
     }
     
-    public func perform(block:(Void) -> Void) {
+    public func synchronize(block:(Void) -> Void) {
         semaphore.perform(block)
     }
     
@@ -95,7 +98,7 @@ public struct LockedObject<T:AnyObject> {
         mutext = Mutex()
     }
     func access(block:(object:T) -> Void) {
-        mutext.perform { (Void) -> Void in
+        mutext.synchronize { (Void) -> Void in
             block(object: self.object)
         }
     }
@@ -111,4 +114,12 @@ public postfix func ++ (semaphore: Semaphore) {
 }
 public postfix func -- (semaphore: Semaphore) {
     semaphore.wait()
+}
+public func <<< (mutex:Mutex,block:() -> Void) -> Mutex {
+    mutex.synchronize(block)
+    return mutex
+}
+public func <<< <T:AnyObject> (l:LockedObject<T>,block:(object:T) -> Void) -> LockedObject<T> {
+    l.access(block)
+    return l
 }
