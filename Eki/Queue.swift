@@ -121,11 +121,21 @@ public enum Queue {
     
     //MARK: Suspend & Resume
     public func suspend() {
-       dispatch_suspend(dispatchQueue)
+        switch (self) {
+        case .Custom(let queue):
+            dispatch_suspend(queue)
+        default:
+            assertionFailure("You can't suspend a global queue")
+        }
     }
     
     public func resume() {
-        dispatch_suspend(dispatchQueue)
+        switch (self) {
+        case .Custom(let queue):
+            dispatch_resume(queue)
+        default:
+            assertionFailure("You can't resume a global queue")
+        }
     }
     
     //MARK: Current Queuess
