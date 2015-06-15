@@ -194,9 +194,9 @@ g.wait() // Wait on the current process the group's blocks execution.
 Execute a block once and only once.
 
 ```swift
-let token = OnceToken() // Store it somewhere
+let once = OnceDispatcher() // Store it somewhere
 ...
-once(token) {
+once {
 	// Executed only one time
 }
 ```
@@ -215,20 +215,32 @@ Initialize a semaphore:
 
 ```swift
 let sem = Semaphore(.Binary)
+let customSem = Semaphore(resource:5)
+
 ```
 
-You can increment/decrement a resource on the semaphore by using `wait/signal` methods:
+You can decrement/increment semaphore's resource by using `wait/signal` methods:
 
 ```swift
 sem.wait()
-// Do some stuff when a resource is available
+  // Do some stuff when a resource is available
 sem.signal()
+
+// Or
+sem--
+  ...
+sem++
 ```
 Or by using the `perform` convenient method with a closure:
 
 ```swift
 sem.perform {
 	// Do some stuff when a resource is available
+}
+
+// Or
+sem <<< {
+	...
 }
 ```
 
@@ -238,8 +250,13 @@ A **mutex** is essentially the same thing as a **binary semaphore** except that 
 ```swift
 let m = Mutex()
 ...
-m.perform {
+m.sync {
 	// Do some stuff when a mutext is available
+}
+
+// Or
+m <<< {
+  ...
 }
 ```
 
@@ -254,6 +271,10 @@ l.access { obj in
 	// Only one process at a time will access the locked object
 }
 
+// Or
+l <<< { obj in
+  ...
+}
 ```
 ## Use with [cocoapods](http://cocoapods.org/)
 

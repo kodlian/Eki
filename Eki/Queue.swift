@@ -13,7 +13,7 @@ A wrapper for Grand Central Dispatch Queue
 */
 public enum Queue {
     static var currentKey = 0 //"Eki.queue"
-    static var currentToken = OnceToken() //"Eki.queue"
+    static var onceSpecifics = OnceDispatcher() //"Eki.queue"
 
     case Main
     case UserInteractive
@@ -121,11 +121,11 @@ public enum Queue {
     
     //MARK: Current Queuess
     public static func initOnceGlobalQueueSpecifics() {
-        once(Queue.currentToken, { () -> Void in
+        onceSpecifics { () -> Void in
             for q in Queue.allDefaults {
                 q.setCurrentSpecific()
             }
-        })
+        }
     }
     
     private func setCurrentSpecific() {

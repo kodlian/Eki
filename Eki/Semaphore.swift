@@ -81,7 +81,7 @@ public struct Mutex {
         semaphore = Semaphore(.Binary)
     }
     
-    public func synchronize(block:(Void) -> Void) {
+    public func sync(block:(Void) -> Void) {
         semaphore.perform(block)
     }
     
@@ -98,7 +98,7 @@ public struct LockedObject<T:AnyObject> {
         mutext = Mutex()
     }
     func access(block:(object:T) -> Void) {
-        mutext.synchronize { (Void) -> Void in
+        mutext.sync { (Void) -> Void in
             block(object: self.object)
         }
     }
@@ -116,7 +116,7 @@ public postfix func -- (semaphore: Semaphore) {
     semaphore.wait()
 }
 public func <<< (mutex:Mutex,block:() -> Void) -> Mutex {
-    mutex.synchronize(block)
+    mutex.sync(block)
     return mutex
 }
 public func <<< <T:AnyObject> (l:LockedObject<T>,block:(object:T) -> Void) -> LockedObject<T> {
