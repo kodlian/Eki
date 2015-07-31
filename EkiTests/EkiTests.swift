@@ -90,10 +90,10 @@ class EkiTests: XCTestCase {
     }
     
     func testOnce() {
-        let t = OnceToken()
+        let once = OnceDispatcher()
         var c = 0
         for i in 0...4 {
-            once(t) {
+            once {
                 c++
             }
         }
@@ -207,9 +207,8 @@ class EkiTests: XCTestCase {
         let grp = Group(queue: queue)
         sampleFunctionWithExecutor(grp.executor)
         sampleFunctionWithExecutor(grp.notifyExecutor)
-        
-        let onceToken = OnceToken()
-        sampleFunctionWithExecutor(onceToken.executor)
+
+        sampleFunctionWithExecutor(OnceDispatcher())
         
         let semaphore = Semaphore(.Binary)
         sampleFunctionWithExecutor(semaphore.executor)

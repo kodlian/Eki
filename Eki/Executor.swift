@@ -65,12 +65,3 @@ public extension Group {
         }
     }
 }
-
-public extension OnceToken {
-    
-    public var executor: Executor {
-        return { block in
-            self.perform(block)
-        }
-    }
-}
