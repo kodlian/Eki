@@ -64,7 +64,7 @@ public extension Semaphore {
 //MARK: - Edsger Dijkstra naming - Dutch
 public extension Semaphore {
     public func P(time: NSTimeInterval? = nil) -> Bool {
-        return self.wait(time: time)
+        return self.wait(time)
     }
     public func V()  -> Bool {
         return self.signal()
