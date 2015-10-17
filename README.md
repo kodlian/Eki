@@ -276,6 +276,22 @@ l <<< { obj in
   ...
 }
 ```
+
+### Timer
+
+A timer allow to schedule a block on a specified queue.
+```swift
+let timer = Timer.schedule(.Background, interval: 2) {
+   // Do some stuff on Background after 2 seconds
+}
+```
+But not only, the block could be suspended, resumed or cancelled.
+```swift
+timer.suspend()
+timer.resume()
+timer.cancel()
+```
+
 ## Use with [cocoapods](http://cocoapods.org/)
 
 Add `pod 'Eki'` to your `Podfile` and run `pod install`.
