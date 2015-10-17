@@ -186,4 +186,35 @@ class EkiTests: XCTestCase {
 
         self.waitForExpectationsWithTimeout(4, handler: nil)
     }
+    
+    func testExecutor() {
+        var i = 0
+        var j = 0
+        func sampleFunctionWithExecutor(executor: Executor) {
+            j++
+            let expt = self.expectationWithDescription("testExecutor\(j)")
+            executor {
+                i++
+                expt.fulfill()
+            }
+            self.waitForExpectationsWithTimeout(4, handler: nil)
+        }
+        
+        sampleFunctionWithExecutor(ImmediateExecutor)
+        sampleFunctionWithExecutor(Queue.Main.executor)
+        sampleFunctionWithExecutor(Queue.Background.syncExecutor)
+        
+        let queue = Queue(name: "myqueue", kind: .Concurrent)
+        let grp = Group(queue: queue)
+        sampleFunctionWithExecutor(grp.executor)
+        sampleFunctionWithExecutor(grp.notifyExecutor)
+
+        sampleFunctionWithExecutor(OnceDispatcher())
+        
+        let semaphore = Semaphore(.Binary)
+        sampleFunctionWithExecutor(semaphore.executor)
+
+        
+        XCTAssert(j == i, "All block not executed with executors")
+    }
 }

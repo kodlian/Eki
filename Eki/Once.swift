@@ -17,4 +17,5 @@ public func OnceDispatcher() -> ((() -> Void) -> Void) {
     return { block in
         dispatch_once(&token,block)
     }
+
 }
