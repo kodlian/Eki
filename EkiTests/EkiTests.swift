@@ -71,7 +71,6 @@ class EkiTests: XCTestCase {
     func testTaskChain() {
         let expt = self.expectationWithDescription("Operation")
 
-        let q = Queue(name: "myqueue", kind: .Concurrent)
         var test = [0,0]
         let task =  Queue.UserInitiated + {
             test[0] = 1
@@ -92,7 +91,7 @@ class EkiTests: XCTestCase {
     func testOnce() {
         let once = OnceDispatcher()
         var c = 0
-        for i in 0...4 {
+        for _ in 0...4 {
             once {
                 c++
             }
@@ -157,7 +156,9 @@ class EkiTests: XCTestCase {
             let current = Queue.current
             switch current  {
             case Queue.Background:
-                println()
+                do {
+                    
+                }
             default:
                 XCTFail("current should be background")
             }

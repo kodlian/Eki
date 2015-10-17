@@ -68,12 +68,6 @@ public class Group {
     
 }
 
-// MARK: Equatable
-extension Group: Equatable { }
-public func ==(lhs: Group, rhs: Group) -> Bool {
-    return lhs.group == rhs.group
-}
-
 //MARK: Operator
 public func <<< (g:Group,block:() -> Void) -> Group {
     return g.async(block)
