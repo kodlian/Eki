@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
   s.name         = "Eki"
-  s.version      = "1.0.0"
+  s.version      = "2.0.0"
   s.summary      = "Delicious wrapper for grand central dispatch"
 
   s.homepage     = "https://github.com/kodlian/eki"
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
-  s.source       = { :git => "https://github.com/kodlian/eki.git", :tag => "1.0.0" }
+  s.source       = { :git => "https://github.com/kodlian/eki.git", :tag => "2.0.0" }
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
