@@ -201,6 +201,37 @@ once {
 }
 ```
 
+## Timer
+
+A timer allows to schedule a block on a specified queue with an interval or a date.
+```swift
+let timer = Timer.scheduleWithInterval(2, onQueue: .Background) {
+   // Do some stuff on Background after 2 seconds
+}
+// Equivalent to:
+let timer = Timer(queue: .Background, interval: 2)
+timer.handler {
+  // Do some stuff on Background after 2 seconds
+}
+timer.start() // Timers are paused at Initialization
+```
+A timer can be paused or stopped.
+```swift
+timer.pause()
+timer.start()
+timer.stop()
+```
+A timer can be repeated, use a date...
+```swift
+let date: NSDate = ...
+let timer = Timer(queue: .Background, date: date)
+timer.repeatInterval = 4
+timer.tolerance =  1 // Add some tolerance
+timer.handler {
+  // Do some stuff on Background on specified date and after every 4 seconds approximately
+}
+timer.start()
+```
 
 ## Semaphore
 There is three kinds of semaphore:
@@ -277,38 +308,7 @@ l <<< { obj in
 }
 ```
 
-### Timer
 
-A timer allows to schedule a block on a specified queue with an interval or a date.
-```swift
-let timer = Timer.scheduleWithInterval(2, onQueue: .Background) {
-   // Do some stuff on Background after 2 seconds
-}
-// Equivalent to:
-let timer = Timer(queue: .Background, interval: 2)
-timer.handler {
-  // Do some stuff on Background after 2 seconds
-}
-timer.start() // Timers are paused at Initialization
-```
-A timer can be paused or stopped.
-```swift
-timer.pause()
-timer.start()
-timer.stop()
-```
-A timer can be repeated, use a date ...
-```swift
-let date: NSDate = ...
-let timer = Timer(queue: .Background, date: date)
-timer.repeatInterval = 4
-timer.tolerance =  1 // Add some tolerance
-timer.handler {
-  // Do some stuff on Background on specified date and after every 4 seconds approximately
-}
-
-timer.start()
-```
 
 ## Use with [cocoapods](http://cocoapods.org/)
 
