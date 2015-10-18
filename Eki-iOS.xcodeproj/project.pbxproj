@@ -15,6 +15,7 @@
 		3F77724319F57A7900BCABF9 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F77724219F57A7900BCABF9 /* Group.swift */; };
 		3F77724519F57A8900BCABF9 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F77724419F57A8900BCABF9 /* Task.swift */; };
 		3F77724719F57ADA00BCABF9 /* Once.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F77724619F57ADA00BCABF9 /* Once.swift */; };
+		C484B1E11BB976F600E264A8 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C484B1E01BB976F600E264A8 /* Timer.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +40,7 @@
 		3F77724219F57A7900BCABF9 /* Group.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Group.swift; sourceTree = "<group>"; };
 		3F77724419F57A8900BCABF9 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		3F77724619F57ADA00BCABF9 /* Once.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Once.swift; sourceTree = "<group>"; };
+		C484B1E01BB976F600E264A8 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +88,7 @@
 				3F77724419F57A8900BCABF9 /* Task.swift */,
 				3F77724619F57ADA00BCABF9 /* Once.swift */,
 				3F350CB11B04EE2A00465643 /* Semaphore.swift */,
+				C484B1E01BB976F600E264A8 /* Timer.swift */,
 				3F2E56F019EEB33400B2E1F5 /* Eki.h */,
 				3F2E56EE19EEB33400B2E1F5 /* Supporting Files */,
 			);
@@ -173,6 +176,7 @@
 		3F2E56E219EEB33400B2E1F5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Jérémy Marchand";
 				TargetAttributes = {
@@ -227,6 +231,7 @@
 				3F2E570819EEB38000B2E1F5 /* Queue.swift in Sources */,
 				3F77724319F57A7900BCABF9 /* Group.swift in Sources */,
 				3F350CB21B04EE2A00465643 /* Semaphore.swift in Sources */,
+				C484B1E11BB976F600E264A8 /* Timer.swift in Sources */,
 				3F77724719F57ADA00BCABF9 /* Once.swift in Sources */,
 				3F77724519F57A8900BCABF9 /* Task.swift in Sources */,
 			);
