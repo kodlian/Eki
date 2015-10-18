@@ -13,167 +13,204 @@ A wrapper for Grand Central Dispatch Source Type Timer
 */
 public final class Timer {
     
+    //MARK: factory
+    public class func scheduleWithInterval(interval: NSTimeInterval, onQueue queue: Queue, byRepeating shouldRepeat: Bool = false, block: () -> Void) -> Timer {
+        let timer = Timer(queue: queue, interval: interval, shouldRepeat: shouldRepeat)
+        
+        timer.block = block
+        timer.start()
+      
+        return timer
+    }
+    
+    public class func scheduleWithDate(date: NSDate, onQueue queue: Queue,  block: () -> Void) -> Timer {
+        let timer = Timer(queue: queue, date: date)
+   
+        timer.block = block
+        timer.start()
+    
+        return timer
+    }
+    
+    //MARK: Properties
     public let queue: Queue
     private let source: dispatch_source_t
 
-    private let barrierQueue: Queue
-    private var isSuspended: Bool
+    private let syncQueue: Queue
+    private var suspended: Bool
     
-    public typealias Handler = (timer: Timer) -> Void
-    private static let DEFAULT_LEEWAY = 0.0
- 
-    //MARK: init
-    public init(queue: Queue) {
-        self.queue = queue
-        self.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue.dispatchQueue)
-
-        self.barrierQueue = Queue(name: "Timer.barrierQueue", kind: .Concurrent)
-        self.isSuspended = true
-    }
-
-    deinit {
-        self.setEventHandler { (_) -> Void in }
-        self.setCancelHandler { (_) -> Void in }
-        self.setRegistrationHandler { (_) -> Void in }
-
-        self.resume()
-        self.cancel()
-    }
-
-    //MARK: factory
-    public class func schedule(queue: Queue, interval: NSTimeInterval, eventHandler: Handler) -> Timer {
-        return schedule(queue, interval: interval, suspended: false, eventHandler: eventHandler)
-    }
-    
-    public class func schedule(queue: Queue, interval: NSTimeInterval, suspended: Bool, eventHandler: Handler) -> Timer {
-        let timer = Timer(queue: queue)
-        timer.setTimer(interval)
-        timer.setEventHandler(eventHandler)
-        if !suspended {
-            timer.resume()
+    //MARK: Timer setter
+    public var startTime: TimeConvertible = 0 {
+        didSet {
+            startDispatchTime = startTime.dispatchTime
+            updateSourceTimer()
         }
-        return timer
+    }
+    private var startDispatchTime: dispatch_time_t = 0
+    
+    
+    public var repeatInterval: NSTimeInterval? = nil {
+        didSet {
+            if repeatInterval != oldValue {
+                updateSourceTimer()
+            }
+        }
+    }
+    public var tolerance: NSTimeInterval = 0.0  {
+        didSet {
+            if tolerance != oldValue {
+                updateSourceTimer()
+            }
+        }
+    }
+
+    private func updateSourceTimer() {
+        let deltaTime: UInt64
+        if let interval = repeatInterval {
+            deltaTime = UInt64(interval * NSTimeInterval(NSEC_PER_SEC))
+        }
+        else {
+            deltaTime = DISPATCH_TIME_FOREVER
+        }
+        dispatch_source_set_timer(
+            source,
+            startDispatchTime,
+            deltaTime,
+            UInt64(tolerance * NSTimeInterval(NSEC_PER_SEC)))
+    }
+    
+    //MARK: Handler setter
+    public var block: (() -> Void)?  = nil {
+        didSet {
+            updateHandler(dispatch_source_set_event_handler, handler: block)
+        }
+    }
+    
+    public var cancelHandler: (() -> Void)? = nil {
+        didSet {
+            updateHandler(dispatch_source_set_registration_handler, handler: cancelHandler)
+        }
+    }
+    
+    public var startHandler: (() -> Void)? = nil {
+        didSet {
+            updateHandler(dispatch_source_set_registration_handler, handler: startHandler)
+        }
+    }
+    
+    private func updateHandler(handlerSetMethod:(source: dispatch_source_t, handler: dispatch_block_t!) -> Void, handler someHandler:(() -> Void)?) {
+        let handler = someHandler != nil ? someHandler : { () -> Void in }
+        
+        handlerSetMethod(source: source, handler: handler)
+    }
+
+    //MARK: init
+    private init(queue: Queue) {
+        self.queue = queue
+        source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue.dispatchQueue)
+
+        syncQueue = Queue(name: "Timer.syncQueue", kind: .Serial)
+        suspended = true
+    }
+    
+    convenience public init(queue: Queue, interval: NSTimeInterval, shouldRepeat: Bool = false) {
+        self.init(queue: queue)
+        startTime = interval
+        if shouldRepeat {
+            repeatInterval = interval
+        }
+        
+        startDispatchTime = startTime.dispatchTime
+        updateSourceTimer()
+    }
+    
+    convenience public init(queue: Queue, interval: NSTimeInterval, repeatInterval rInterval: NSTimeInterval? = nil) {
+        self.init(queue: queue)
+        startTime = interval
+        repeatInterval = rInterval
+        startDispatchTime = startTime.dispatchTime
+        updateSourceTimer()
+    }
+    
+    convenience public init(queue: Queue, date: NSDate) {
+        self.init(queue: queue)
+        startTime = date
+        startDispatchTime = startTime.dispatchTime
+        updateSourceTimer()
+    }
+    
+    deinit {
+        block = nil
+        startHandler = nil
+        cancelHandler = nil
+        
+        if !stopped {
+            stop()
+        }
     }
 
     //MARK: Suspend & Resume
-    public func resume() {
-        var isSuspended = false
-        barrierQueue.sync {
-            isSuspended = self.isSuspended
-            if isSuspended {
-                self.isSuspended = false
+    public func start() {
+        syncQueue.sync {
+            let suspended = self.suspended
+            if suspended {
+                self.suspended = false
+                dispatch_resume(self.source)
             }
-        }
-
-        if isSuspended {
-            dispatch_resume(self.source)
         }
     }
 
-    public func suspend() {
-        var isSuspended = false
-        barrierQueue.sync {
-            isSuspended = self.isSuspended
-            if !isSuspended {
-                self.isSuspended = true
+    public func pause() {
+        syncQueue.sync {
+            let suspended = self.suspended
+            if !suspended {
+                self.suspended = true
+                dispatch_suspend(self.source)
             }
-        }
-        
-        if !isSuspended {
-            dispatch_suspend(self.source)
         }
     }
 
     public var isRunning: Bool {
         var isSuspended = false
-        barrierQueue.sync {
-            isSuspended = self.isSuspended
+        syncQueue.sync {
+            isSuspended = self.suspended
         }
         return !isSuspended
     }
 
     //MARK: cancel
-    public func cancel() {
+    public func stop() {
         dispatch_source_cancel(source)
     }
 
-    public func testCancel() -> Bool {
+    var stopped: Bool {
         return 0 != dispatch_source_testcancel(source)
     }
-
-    //MARK: Timer setter
-    public func setTimer(interval: NSTimeInterval) {
-        self.setTimer(interval, leeway: Timer.DEFAULT_LEEWAY)
-    }
-
-    public func setTimer(interval: NSTimeInterval, leeway: NSTimeInterval) {
-        let deltaTime = interval * NSTimeInterval(NSEC_PER_SEC)
-        dispatch_source_set_timer(
-            self.source,
-            dispatch_time(DISPATCH_TIME_NOW, Int64(deltaTime)),
-            UInt64(deltaTime),
-            UInt64(leeway * NSTimeInterval(NSEC_PER_SEC)))
-    }
-
-    public func setWallTimer(startDate startDate: NSDate, interval: NSTimeInterval){
-        self.setWallTimer(startDate: startDate, interval: interval, leeway: Timer.DEFAULT_LEEWAY)
-    }
-
-    public func setWallTimer(startDate startDate: NSDate, interval: NSTimeInterval, leeway: NSTimeInterval){
-        var walltime = startDate.timeIntervalSince1970.toTimeSpec()
-        let deltaTime = interval * NSTimeInterval(NSEC_PER_SEC)
-        dispatch_source_set_timer(
-            self.source,
-            dispatch_walltime(&walltime, Int64(deltaTime)),
-            UInt64(deltaTime),
-            UInt64(leeway * NSTimeInterval(NSEC_PER_SEC)))
-    }
-
-    //MARK: Handler setter
-    public func setEventHandler(handler: Handler) {
-        dispatch_source_set_event_handler(self.source) { [weak self] in
-            
-            guard let strongSelf = self else {
-                return
-            }
-            autoreleasepool {
-                handler(timer: strongSelf)
-            }
-        }
-    }
-
-    public func setCancelHandler(handler: Handler) {
-        dispatch_source_set_cancel_handler(self.source) { [weak self] in
-            
-            guard let strongSelf = self else {
-                return
-            }
-            autoreleasepool {
-                handler(timer: strongSelf)
-            }
-        }
-    }
-
-    public func setRegistrationHandler(handler: Handler) {
-        dispatch_source_set_registration_handler(self.source) { [weak self] in
-            
-            guard let strongSelf = self else {
-                return
-            }
-            autoreleasepool {
-                handler(timer: strongSelf)
-            }
-        }
-    }
-
 }
 
 //MARK: Time
+public protocol TimeConvertible {
+    var dispatchTime: dispatch_time_t { get }
+}
+
+extension NSTimeInterval: TimeConvertible {
+    public var dispatchTime: dispatch_time_t {
+        let deltaTime = self * NSTimeInterval(NSEC_PER_SEC)
+        return dispatch_time(DISPATCH_TIME_NOW, Int64(deltaTime))
+    }
+}
+
 private extension NSTimeInterval {
-    
-    private func toTimeSpec() -> timespec {
+    private var timeSpec: timespec {
         var seconds: NSTimeInterval = 0.0
         let nanoSeconds = modf(self, &seconds) * NSTimeInterval(NSEC_PER_SEC)
         return timespec(tv_sec: __darwin_time_t(seconds), tv_nsec: Int(nanoSeconds))
+    }
+}
+
+extension NSDate: TimeConvertible {
+    public var dispatchTime: dispatch_time_t {
+        var walltime = self.timeIntervalSince1970.timeSpec
+        return dispatch_walltime(&walltime, 0)
     }
 }

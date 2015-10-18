@@ -279,17 +279,35 @@ l <<< { obj in
 
 ### Timer
 
-A timer allow to schedule a block on a specified queue.
+A timer allows to schedule a block on a specified queue with an interval or a date.
 ```swift
-let timer = Timer.schedule(.Background, interval: 2) {
+let timer = Timer.scheduleWithInterval(2, onQueue: .Background) {
    // Do some stuff on Background after 2 seconds
 }
+// Equivalent to:
+let timer = Timer(queue: .Background, interval: 2)
+timer.handler {
+  // Do some stuff on Background after 2 seconds
+}
+timer.start() // Timers are paused at Initialization
 ```
-But not only, the block could be suspended, resumed or cancelled.
+A timer can be paused or stopped.
 ```swift
-timer.suspend()
-timer.resume()
-timer.cancel()
+timer.pause()
+timer.start()
+timer.stop()
+```
+A timer can be repeated, use a date ...
+```swift
+let date: NSDate = ...
+let timer = Timer(queue: .Background, date: date)
+timer.repeatInterval = 4
+timer.tolerance =  1 // Add some tolerance
+timer.handler {
+  // Do some stuff on Background on specified date and after every 4 seconds approximately
+}
+
+timer.start()
 ```
 
 ## Use with [cocoapods](http://cocoapods.org/)
