@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
 
   s.name         = "Eki"
   s.version      = "2.0.0"
-  s.summary      = "Delicious wrapper for grand central dispatch"
+  s.summary      = "Eki lets you manage easily concurrency in your apps. This framework make Grand Central Dispatch API more friendly and fun to use."
 
   s.homepage     = "https://github.com/kodlian/eki"
 

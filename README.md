@@ -14,7 +14,7 @@
 <p align="center">
 <img src="logo.png" alt="logo"/>
 <br/><br/>
-Eki is a framework to manage easily concurrency in your apps that wraps the powerful API Grand Central Dispatch.
+Eki lets you manage easily concurrency in your apps. This framework make Grand Central Dispatch API more friendly and fun to use.
 </p>
 
 ## Requirements
