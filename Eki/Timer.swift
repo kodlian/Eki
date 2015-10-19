@@ -11,7 +11,7 @@ import Foundation
 /**
 A wrapper for Grand Central Dispatch Source Type Timer
 */
-public final class Timer {
+public final class Timer: Source {
     
     //MARK: factory
     public class func scheduleWithInterval(interval: NSTimeInterval, onQueue queue: Queue, byRepeating shouldRepeat: Bool = false, block: () -> Void) -> Timer {
@@ -33,8 +33,6 @@ public final class Timer {
     }
     
     //MARK: Properties
-    public let queue: Queue
-    private let source: dispatch_source_t
 
     private let syncQueue: Queue
     private var suspended: Bool
@@ -78,39 +76,14 @@ public final class Timer {
             deltaTime,
             UInt64(tolerance * NSTimeInterval(NSEC_PER_SEC)))
     }
-    
-    //MARK: Handler setter
-    public var block: (() -> Void)?  = nil {
-        didSet {
-            updateHandler(dispatch_source_set_event_handler, handler: block)
-        }
-    }
-    
-    public var cancelHandler: (() -> Void)? = nil {
-        didSet {
-            updateHandler(dispatch_source_set_registration_handler, handler: cancelHandler)
-        }
-    }
-    
-    public var startHandler: (() -> Void)? = nil {
-        didSet {
-            updateHandler(dispatch_source_set_registration_handler, handler: startHandler)
-        }
-    }
-    
-    private func updateHandler(handlerSetMethod:(source: dispatch_source_t, handler: dispatch_block_t!) -> Void, handler someHandler:(() -> Void)?) {
-        let handler = someHandler != nil ? someHandler : { () -> Void in }
-        
-        handlerSetMethod(source: source, handler: handler)
-    }
+
 
     //MARK: init
     private init(queue: Queue) {
-        self.queue = queue
-        source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue.dispatchQueue)
-
         syncQueue = Queue(name: "Timer.syncQueue", kind: .Serial)
         suspended = true
+
+        super.init(type: SourceType.Timer, queue: queue)
     }
     
     convenience public init(queue: Queue, interval: NSTimeInterval, shouldRepeat: Bool = false) {
@@ -178,14 +151,6 @@ public final class Timer {
         return !isSuspended
     }
 
-    //MARK: cancel
-    public func stop() {
-        dispatch_source_cancel(source)
-    }
-
-    var stopped: Bool {
-        return 0 != dispatch_source_testcancel(source)
-    }
 }
 
 //MARK: Time
