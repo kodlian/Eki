@@ -88,7 +88,7 @@ public final class Timer {
     
     public var cancelHandler: (() -> Void)? = nil {
         didSet {
-            updateHandler(dispatch_source_set_registration_handler, handler: cancelHandler)
+            updateHandler(dispatch_source_set_cancel_handler, handler: cancelHandler)
         }
     }
     
