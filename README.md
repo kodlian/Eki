@@ -14,7 +14,7 @@
 <p align="center">
 <img src="logo.png" alt="logo"/>
 <br/><br/>
-Eki lets you manage easily concurrency in your apps. This framework make Grand Central Dispatch API more friendly and fun to use.
+Eki lets you manage easily concurrency in your apps. This framework makes Grand Central Dispatch easy and fun to use.
 </p>
 
 ## Requirements
@@ -62,9 +62,9 @@ Queue.Utility.sync { // Eki will prevent deadlock if you submit a sync on the cu
 
 You can send multiple blocks to a queue:
 ```swift
-Queue.Utility <<< {
+Queue.Utility.async {
 	// Block 1
-} <<< {
+}.async {
 	// Block 2
 }
 // Or by submitting an array of blocks:
@@ -94,9 +94,9 @@ Dispatch a block asynchronously with barrier:
 ```swift
 let queue:Queue = Queue(name:"QueueName", type:.Concurrent)
 ...
-queue |<| { // Or barrierAsync { }
+queue.barrierAsync { // Or operator |<|
 	// This block will be executed on the queue only after all previous submitted blocks have been executed
-} <<< {
+}.barrierAsync {
 	// This block will be executed only after the previous barrier block have completed
 }
 ```
