@@ -10,6 +10,7 @@
 [![Issues](https://img.shields.io/github/issues/kodlian/Eki.svg?style=flat
                         )](https://github.com/kodlian/Eki/issues)
 [![Cocoapod](http://img.shields.io/cocoapods/v/Eki.svg?style=flat)](http://cocoadocs.org/docsets/Eki/)
+[![Reference Status](https://www.versioneye.com/objective-c/eki/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/eki/references)
 
 <p align="center">
 <img src="logo.png" alt="logo"/>
