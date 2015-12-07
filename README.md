@@ -10,11 +10,12 @@
 [![Issues](https://img.shields.io/github/issues/kodlian/Eki.svg?style=flat
                         )](https://github.com/kodlian/Eki/issues)
 [![Cocoapod](http://img.shields.io/cocoapods/v/Eki.svg?style=flat)](http://cocoadocs.org/docsets/Eki/)
+[![Reference Status](https://www.versioneye.com/objective-c/eki/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/eki/references)
 
 <p align="center">
 <img src="logo.png" alt="logo"/>
 <br/><br/>
-Eki lets you manage easily concurrency in your apps. This framework make Grand Central Dispatch API more friendly and fun to use.
+Eki lets you manage easily concurrency in your apps. This framework makes Grand Central Dispatch easy and fun to use.
 </p>
 
 ## Requirements
@@ -62,9 +63,9 @@ Queue.Utility.sync { // Eki will prevent deadlock if you submit a sync on the cu
 
 You can send multiple blocks to a queue:
 ```swift
-Queue.Utility <<< {
+Queue.Utility.async {
 	// Block 1
-} <<< {
+}.async {
 	// Block 2
 }
 // Or by submitting an array of blocks:
@@ -94,9 +95,9 @@ Dispatch a block asynchronously with barrier:
 ```swift
 let queue:Queue = Queue(name:"QueueName", type:.Concurrent)
 ...
-queue |<| { // Or barrierAsync { }
+queue.barrierAsync { // Or operator |<|
 	// This block will be executed on the queue only after all previous submitted blocks have been executed
-} <<< {
+}.barrierAsync {
 	// This block will be executed only after the previous barrier block have completed
 }
 ```
