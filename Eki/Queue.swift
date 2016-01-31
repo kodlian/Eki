@@ -9,8 +9,8 @@
 import Foundation
 
 /**
-A wrapper for Grand Central Dispatch Queue
-*/
+ A wrapper for Grand Central Dispatch Queue
+ */
 
 public enum Queue {
     private static var currentKey = 0
@@ -37,12 +37,6 @@ public enum Queue {
         func createDispatchQueueWithName(name: String) -> dispatch_queue_t {
             var type: dispatch_queue_attr_t!
 
-            func foo(toto: Int) {
-
-            }
-
-            Queue.Main.async(foo(2))
-
             switch self {
             case .Concurrent:
                 type = DISPATCH_QUEUE_CONCURRENT
@@ -66,13 +60,8 @@ public enum Queue {
         return self
     }
 
-    public func async(@autoclosure(escaping) block: () -> Void) -> Queue {
-        dispatch_async(dispatchQueue, block)
-        return self
-    }
-
     public func sync(block: () -> Void) -> Queue {
-        if isCurrent {
+        if unsafeIsCurrent {
             block()
         } else {
             dispatch_sync(dispatchQueue, block)
@@ -80,15 +69,11 @@ public enum Queue {
         return self
     }
 
-    public func sync(@autoclosure(escaping) block: () -> Void) -> Queue {
-        return sync(block)
-    }
-
     public func after(delay: NSTimeInterval, doBlock block: () -> Void) -> Queue {
         dispatch_after(dispatch_time(
-        DISPATCH_TIME_NOW,
-                Int64(delay.nanosecondsRepresentation)
-        ), dispatchQueue, block)
+            DISPATCH_TIME_NOW,
+            Int64(delay.nanosecondsRepresentation)
+            ), dispatchQueue, block)
         return self
     }
 
@@ -98,7 +83,7 @@ public enum Queue {
     }
 
     public func barrierSync(block: () -> Void) -> Queue {
-        if isCurrent {
+        if unsafeIsCurrent {
             assertionFailure("You can't send a barrier on the same queue.")
         } else {
             dispatch_barrier_sync(dispatchQueue, block)
@@ -109,97 +94,107 @@ public enum Queue {
     //MARK: Dispatch multiple blocks
     public func async(blocks: [() -> Void]) -> Queue {
 
-for block in blocks {
-    async(block)
-}
-return self
-}
-
-//MARK: Others
-public func iterate(iteration: Int, block: (i: Int) -> ()) {
-    dispatch_apply(iteration, dispatchQueue, block)
-}
-
-internal var dispatchQueue: dispatch_queue_t {
-    switch (self) {
-    case .Main:
-        return dispatch_get_main_queue()
-    case .UserInteractive:
-        return dispatch_get_global_queue(Int(QOS_CLASS_USER_INTERACTIVE.rawValue), 0)
-    case .UserInitiated:
-        return dispatch_get_global_queue(Int(QOS_CLASS_USER_INITIATED.rawValue), 0)
-    case .Default:
-        return dispatch_get_global_queue(Int(QOS_CLASS_DEFAULT.rawValue), 0)
-    case .Utility:
-        return dispatch_get_global_queue(Int(QOS_CLASS_UTILITY.rawValue), 0)
-    case .Background:
-        return dispatch_get_global_queue(Int(QOS_CLASS_BACKGROUND.rawValue), 0)
-    case .Custom(let queue):
-        return queue
+        for block in blocks {
+            async(block)
+        }
+        return self
     }
-}
 
-//MARK: Suspend & Resume
-public func suspend() {
-    switch (self) {
-    case .Custom(let queue):
-        dispatch_suspend(queue)
-    default:
-        assertionFailure("You can't suspend a global queue")
+    //MARK: Others
+    public func iterate(iteration: Int, block: (i: Int) -> ()) {
+        dispatch_apply(iteration, dispatchQueue, block)
     }
-}
 
-public func resume() {
-    switch (self) {
-    case .Custom(let queue):
-        dispatch_resume(queue)
-    default:
-        assertionFailure("You can't resume a global queue")
-    }
-}
-
-//MARK: Current Queuess
-private static func initOnceGlobalQueueSpecifics() {
-    onceSpecifics {
-        () -> Void in
-        for q in Queue.allDefaults {
-            q.setCurrentSpecific()
+    internal var dispatchQueue: dispatch_queue_t {
+        switch (self) {
+        case .Main:
+            return dispatch_get_main_queue()
+        case .UserInteractive:
+            return dispatch_get_global_queue(Int(QOS_CLASS_USER_INTERACTIVE.rawValue), 0)
+        case .UserInitiated:
+            return dispatch_get_global_queue(Int(QOS_CLASS_USER_INITIATED.rawValue), 0)
+        case .Default:
+            return dispatch_get_global_queue(Int(QOS_CLASS_DEFAULT.rawValue), 0)
+        case .Utility:
+            return dispatch_get_global_queue(Int(QOS_CLASS_UTILITY.rawValue), 0)
+        case .Background:
+            return dispatch_get_global_queue(Int(QOS_CLASS_BACKGROUND.rawValue), 0)
+        case .Custom(let queue):
+            return queue
         }
     }
-}
 
-private func setCurrentSpecific() {
-    let q = dispatchQueue
-    let opPtr = Unmanaged < dispatch_queue_t>.passUnretained(q).toOpaque()
-    dispatch_queue_set_specific(q,
+    //MARK: Suspend & Resume
+    public func suspend() {
+        switch (self) {
+        case .Custom(let queue):
+            dispatch_suspend(queue)
+        default:
+            assertionFailure("You can't suspend a global queue")
+        }
+    }
+
+    public func resume() {
+        switch (self) {
+        case .Custom(let queue):
+            dispatch_resume(queue)
+        default:
+            assertionFailure("You can't resume a global queue")
+        }
+    }
+
+    //MARK: Current Queuess
+    private static func initOnceGlobalQueueSpecifics() {
+        onceSpecifics {
+            () -> Void in
+            for q in Queue.allDefaults {
+                q.setCurrentSpecific()
+            }
+        }
+    }
+
+    private func setCurrentSpecific() {
+        let q = dispatchQueue
+        let opPtr = Unmanaged < dispatch_queue_t>.passUnretained(q).toOpaque()
+        dispatch_queue_set_specific(q,
             &Queue.currentKey, UnsafeMutablePointer<Void>(opPtr), nil)
-}
-
-private static func getCurrentPointer() -> UnsafeMutablePointer<Void> {
-    let currentPtr = dispatch_get_specific(&Queue.currentKey)
-    assert(currentPtr != nil, "Use only with custom queues initialized with Queue(name:String, kind:Queue.Custom.Kind), the Main queue and Global queues")
-    return currentPtr
-}
-
-public var isCurrent: Bool {
-    Queue.initOnceGlobalQueueSpecifics()
-
-    let queuePtr = dispatch_queue_get_specific(self.dispatchQueue, &Queue.currentKey)
-    return Queue.getCurrentPointer() == queuePtr
-}
-public static var current: Queue {
-    initOnceGlobalQueueSpecifics()
-
-    let currentQueue = Unmanaged < dispatch_queue_t>.fromOpaque(COpaquePointer(getCurrentPointer())).takeUnretainedValue()
-
-    for q in Queue.allDefaults {
-        if q.dispatchQueue === currentQueue {
-            return q
-        }
     }
 
-    return Queue.Custom(queue: currentQueue)
-}
+    private static func getCurrentPointer() -> UnsafeMutablePointer<Void> {
+        let currentPtr = dispatch_get_specific(&Queue.currentKey)
+        //
+        return currentPtr
+    }
+
+    public var isCurrent: Bool {
+        Queue.initOnceGlobalQueueSpecifics()
+
+        let queuePtr = dispatch_queue_get_specific(self.dispatchQueue, &Queue.currentKey)
+        let currentPointer = Queue.getCurrentPointer()
+        assert(currentPointer != nil, "Use only with custom queues initialized with Queue(name:String, kind:Queue.Custom.Kind), the Main queue and Global queues")
+        return currentPointer == queuePtr
+    }
+
+    public var unsafeIsCurrent: Bool {
+        Queue.initOnceGlobalQueueSpecifics()
+
+        let queuePtr = dispatch_queue_get_specific(self.dispatchQueue, &Queue.currentKey)
+        let currentPointer = Queue.getCurrentPointer()
+        return currentPointer == queuePtr
+    }
+    public static var current: Queue {
+        initOnceGlobalQueueSpecifics()
+
+        let currentQueue = Unmanaged < dispatch_queue_t>.fromOpaque(COpaquePointer(getCurrentPointer())).takeUnretainedValue()
+
+        for q in Queue.allDefaults {
+            if q.dispatchQueue === currentQueue {
+                return q
+            }
+        }
+
+        return Queue.Custom(queue: currentQueue)
+    }
 }
 
 //MARK: Operator

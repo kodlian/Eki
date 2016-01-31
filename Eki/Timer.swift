@@ -36,8 +36,8 @@ public final class Timer {
     public let queue: Queue
     private let source: dispatch_source_t
 
-    private let syncQueue: Queue
-    private var suspended: Bool
+    private let syncQueue = Queue(name: "Timer.syncQueue", kind: .Serial)
+    private var suspended = false
 
     //MARK: Timer setter
     public var startTime: TimeConvertible = 0 {
@@ -107,9 +107,6 @@ public final class Timer {
     private init(queue: Queue) {
         self.queue = queue
         source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue.dispatchQueue)
-
-        syncQueue = Queue(name: "Timer.syncQueue", kind: .Serial)
-        suspended = true
     }
 
     convenience public init(queue: Queue, interval: NSTimeInterval, shouldRepeat: Bool = false) {
