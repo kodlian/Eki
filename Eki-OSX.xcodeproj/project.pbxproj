@@ -15,7 +15,7 @@
 		3F77724319F57A7900BCABF9 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F77724219F57A7900BCABF9 /* Group.swift */; };
 		3F77724519F57A8900BCABF9 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F77724419F57A8900BCABF9 /* Task.swift */; };
 		3F77724719F57ADA00BCABF9 /* Once.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F77724619F57ADA00BCABF9 /* Once.swift */; };
-		C484B1E31BB984A900E264A8 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C484B1E21BB984A900E264A8 /* Timer.swift */; settings = {ASSET_TAGS = (); }; };
+		C484B1E31BB984A900E264A8 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C484B1E21BB984A900E264A8 /* Timer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -138,6 +138,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3F2E570119EEB33400B2E1F5 /* Build configuration list for PBXNativeTarget "Eki" */;
 			buildPhases = (
+				3F406DA21C5D6BDB0066FBED /* Swift Lint */,
 				3F2E56E619EEB33400B2E1F5 /* Sources */,
 				3F2E56E719EEB33400B2E1F5 /* Frameworks */,
 				3F2E56E819EEB33400B2E1F5 /* Headers */,
@@ -222,6 +223,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3F406DA21C5D6BDB0066FBED /* Swift Lint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Swift Lint";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n swiftlint autocorrect\nelse\n echo \"SwiftLint does not exist, download from https://github.com/realm/SwiftLint\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3F2E56E619EEB33400B2E1F5 /* Sources */ = {

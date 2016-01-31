@@ -12,33 +12,33 @@ import Foundation
 A wrapper for Grand Central Dispatch Source Type Timer
 */
 public final class Timer {
-    
+
     //MARK: factory
     public class func scheduleWithInterval(interval: NSTimeInterval, onQueue queue: Queue, byRepeating shouldRepeat: Bool = false, block: () -> Void) -> Timer {
         let timer = Timer(queue: queue, interval: interval, shouldRepeat: shouldRepeat)
-        
+
         timer.block = block
         timer.start()
-      
+
         return timer
     }
-    
+
     public class func scheduleWithDate(date: NSDate, onQueue queue: Queue,  block: () -> Void) -> Timer {
         let timer = Timer(queue: queue, date: date)
-   
+
         timer.block = block
         timer.start()
-    
+
         return timer
     }
-    
+
     //MARK: Properties
     public let queue: Queue
     private let source: dispatch_source_t
 
     private let syncQueue: Queue
     private var suspended: Bool
-    
+
     //MARK: Timer setter
     public var startTime: TimeConvertible = 0 {
         didSet {
@@ -47,8 +47,8 @@ public final class Timer {
         }
     }
     private var startDispatchTime: dispatch_time_t = 0
-    
-    
+
+
     public var repeatInterval: NSTimeInterval? = nil {
         didSet {
             if repeatInterval != oldValue {
@@ -56,7 +56,7 @@ public final class Timer {
             }
         }
     }
-    public var tolerance: NSTimeInterval = 0.0  {
+    public var tolerance: NSTimeInterval = 0.0 {
         didSet {
             if tolerance != oldValue {
                 updateSourceTimer()
@@ -68,8 +68,7 @@ public final class Timer {
         let deltaTime: UInt64
         if let interval = repeatInterval {
             deltaTime = UInt64(interval * NSTimeInterval(NSEC_PER_SEC))
-        }
-        else {
+        } else {
             deltaTime = DISPATCH_TIME_FOREVER
         }
         dispatch_source_set_timer(
@@ -78,29 +77,29 @@ public final class Timer {
             deltaTime,
             UInt64(tolerance * NSTimeInterval(NSEC_PER_SEC)))
     }
-    
+
     //MARK: Handler setter
     public var block: (() -> Void)?  = nil {
         didSet {
             updateHandler(dispatch_source_set_event_handler, handler: block)
         }
     }
-    
+
     public var cancelHandler: (() -> Void)? = nil {
         didSet {
             updateHandler(dispatch_source_set_cancel_handler, handler: cancelHandler)
         }
     }
-    
+
     public var startHandler: (() -> Void)? = nil {
         didSet {
             updateHandler(dispatch_source_set_registration_handler, handler: startHandler)
         }
     }
-    
+
     private func updateHandler(handlerSetMethod:(source: dispatch_source_t, handler: dispatch_block_t!) -> Void, handler someHandler:(() -> Void)?) {
         let handler = someHandler != nil ? someHandler : { () -> Void in }
-        
+
         handlerSetMethod(source: source, handler: handler)
     }
 
@@ -112,18 +111,18 @@ public final class Timer {
         syncQueue = Queue(name: "Timer.syncQueue", kind: .Serial)
         suspended = true
     }
-    
+
     convenience public init(queue: Queue, interval: NSTimeInterval, shouldRepeat: Bool = false) {
         self.init(queue: queue)
         startTime = interval
         if shouldRepeat {
             repeatInterval = interval
         }
-        
+
         startDispatchTime = startTime.dispatchTime
         updateSourceTimer()
     }
-    
+
     convenience public init(queue: Queue, interval: NSTimeInterval, repeatInterval rInterval: NSTimeInterval? = nil) {
         self.init(queue: queue)
         startTime = interval
@@ -131,19 +130,19 @@ public final class Timer {
         startDispatchTime = startTime.dispatchTime
         updateSourceTimer()
     }
-    
+
     convenience public init(queue: Queue, date: NSDate) {
         self.init(queue: queue)
         startTime = date
         startDispatchTime = startTime.dispatchTime
         updateSourceTimer()
     }
-    
+
     deinit {
         block = nil
         startHandler = nil
         cancelHandler = nil
-        
+
         if !stopped {
             stop()
         }

@@ -15,9 +15,9 @@ public struct Semaphore {
         case Binary
         case Barrier
         case Counting(resource:UInt16)
-        
+
         func unitsCount() -> Int {
-            switch self  {
+            switch self {
             case Binary:
                 return 1
             case Barrier:
@@ -27,34 +27,34 @@ public struct Semaphore {
             }
         }
     }
-    
-    private let semaphore:dispatch_semaphore_t
-    private let kind:Kind
 
-    public init(_ kind:Kind = .Binary) {
+    private let semaphore: dispatch_semaphore_t
+    private let kind: Kind
+
+    public init(_ kind: Kind = .Binary) {
         self.kind = kind
         semaphore = dispatch_semaphore_create(kind.unitsCount())
     }
-    public init(resource:UInt16){
+    public init(resource: UInt16) {
         self.kind = .Counting(resource:resource)
         semaphore = dispatch_semaphore_create(kind.unitsCount())
     }
-    
+
     //MARK: - Semaphore core method
-    public func wait(time:NSTimeInterval? = nil) -> Bool {
-        return dispatch_semaphore_wait(semaphore,dispatch_time_t(timeInterval: time)) == 0
+    public func wait(time: NSTimeInterval? = nil) -> Bool {
+        return dispatch_semaphore_wait(semaphore, dispatch_time_t(timeInterval: time)) == 0
     }
-    
-    public func signal() -> Bool{
+
+    public func signal() -> Bool {
         return dispatch_semaphore_signal(semaphore) > 0
     }
-    
-    
+
+
 }
 
 //MARK: - Convenient method to perform a block when a semaphore resource is free and immediatly release it after the block execution.
 public extension Semaphore {
-    public func perform(block:(Void) -> Void) {
+    public func perform(block: (Void) -> Void) {
         wait()
         block()
         signal()
@@ -75,29 +75,29 @@ public extension Semaphore {
 A Mutex is essentially the same thing as a binary semaphore exept that only the block that locked the mutext is supposed to unlock it.
 */
 public struct Mutex {
-    private var semaphore:Semaphore
+    private var semaphore: Semaphore
 
-    public init(){
+    public init() {
         semaphore = Semaphore(.Binary)
     }
-    
-    public func sync(block:(Void) -> Void) {
+
+    public func sync(block: (Void) -> Void) {
         semaphore.perform(block)
     }
-    
+
 }
 
 /**
 Convenient class to lock access to an object with an internal mutext
 */
 public struct LockedObject<T:AnyObject> {
-    private var object:T
-    private var mutext:Mutex
-    init(_ object:T){
+    private var object: T
+    private var mutext: Mutex
+    init(_ object: T) {
         self.object = object
         mutext = Mutex()
     }
-    func access(block:(object:T) -> Void) {
+    func access(block:(object: T) -> Void) {
         mutext.sync { (Void) -> Void in
             block(object: self.object)
         }
@@ -105,7 +105,7 @@ public struct LockedObject<T:AnyObject> {
 }
 
 //MARK: Operator
-public func <<< (semaphore:Semaphore,block:() -> Void) -> Semaphore {
+public func <<< (semaphore: Semaphore, block:() -> Void) -> Semaphore {
     semaphore.perform(block)
     return semaphore
 }
@@ -115,11 +115,11 @@ public postfix func ++ (semaphore: Semaphore) {
 public postfix func -- (semaphore: Semaphore) {
     semaphore.wait()
 }
-public func <<< (mutex:Mutex,block:() -> Void) -> Mutex {
+public func <<< (mutex: Mutex, block:() -> Void) -> Mutex {
     mutex.sync(block)
     return mutex
 }
-public func <<< <T:AnyObject> (l:LockedObject<T>,block:(object:T) -> Void) -> LockedObject<T> {
+public func <<< <T: AnyObject> (l: LockedObject<T>, block: (object: T) -> Void) -> LockedObject<T> {
     l.access(block)
     return l
 }

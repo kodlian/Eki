@@ -11,34 +11,34 @@ import XCTest
 import Eki
 
 class EkiTests: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
-    
+
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
+
     func testAsync() {
         let expt = self.expectationWithDescription("Dispatch")
 
         Queue.Background <<< {
-            
+
             } <<< {
                 expt.fulfill()
         }
-   
+
         self.waitForExpectationsWithTimeout(2, handler: nil)
     }
-    
+
     func testCustomAsync() {
         let expt = self.expectationWithDescription("CustomAsync")
         let q = Queue(name: "foo", kind: .Concurrent)
         var a = 0
-        
+
         q <<< {
             a++
             } |<| {
@@ -48,11 +48,11 @@ class EkiTests: XCTestCase {
             } <<< {
                 expt.fulfill()
                 XCTAssertEqual(a, 2, "Block barrier have not been executed correctly")
-                
+
         }
         self.waitForExpectationsWithTimeout(2, handler: nil)
     }
-    
+
     func testIterate() {
         let expt = self.expectationWithDescription("Iterate")
 
@@ -63,11 +63,11 @@ class EkiTests: XCTestCase {
                 expt.fulfill()
             }
         }
-        
-        
+
+
         self.waitForExpectationsWithTimeout(2, handler: nil)
     }
-    
+
     func testTaskChain() {
         let expt = self.expectationWithDescription("Operation")
 
@@ -75,19 +75,19 @@ class EkiTests: XCTestCase {
         let task =  Queue.UserInitiated + {
             test[0] = 1
         }
-        
+
         task.async() <> {
             test = test.reverse()
             } <> Queue.Main + {
                 expt.fulfill()
                 XCTAssertEqual(test, [0,1], "Blocks have not been executed on a chain")
         }
-        
-        
+
+
 
         self.waitForExpectationsWithTimeout(4, handler: nil)
     }
-    
+
     func testOnce() {
         let once = OnceDispatcher()
         var c = 0
@@ -96,14 +96,14 @@ class EkiTests: XCTestCase {
                 c++
             }
         }
-        
+
         XCTAssertEqual(c, 1, "Block have not been executed one time")
     }
 
     func testGroup() {
         let expt = self.expectationWithDescription("Group")
 
-        var test = [0,0,0,0];
+        var test = [0,0,0,0]
         let queue = Queue(name: "myqueue", kind: .Concurrent)
         let grp = Group(queue: queue)
         for i in 0..<4 {
@@ -116,21 +116,21 @@ class EkiTests: XCTestCase {
             XCTAssertEqual(test, [0,1,2,3], "GRoup 's blocks have not been executed correctly")
 
         }
-        
+
         self.waitForExpectationsWithTimeout(4, handler: nil)
 
     }
-    
+
 
     func testIsCurrentOnBackground() {
         let expt = self.expectationWithDescription("testIsCurrentOnBackground")
-        
+
         Queue.Background.async { () -> Void in
             XCTAssertTrue(Queue.Background.isCurrent, "Background should be current")
             XCTAssertFalse(Queue.Main.isCurrent, "Main should not be current")
             expt.fulfill()
         }
-        
+
 
         self.waitForExpectationsWithTimeout(4, handler: nil)
     }
@@ -144,25 +144,25 @@ class EkiTests: XCTestCase {
             XCTAssertFalse(Queue.Main.isCurrent, "Main should not be current")
             expt.fulfill()
         }
-        
-        
+
+
         self.waitForExpectationsWithTimeout(4, handler: nil)
     }
-    
+
     func testCurrentQueue() {
         let expt = self.expectationWithDescription("testCurrentQueue")
-        
+
         Queue.Background.async { () -> Void in
             let current = Queue.current
-            switch current  {
+            switch current {
             case Queue.Background:
                 do {
-                    
+
                 }
             default:
                 XCTFail("current should be background")
             }
-            
+
             Queue.current.async {
                 XCTAssertTrue(Queue.Background.isCurrent, "Background should be current")
                 expt.fulfill()
@@ -171,13 +171,13 @@ class EkiTests: XCTestCase {
 
         self.waitForExpectationsWithTimeout(4, handler: nil)
     }
-    
+
     func testCurrentQueueOnCustom() {
         let expt = self.expectationWithDescription("testCurrentQueue")
         let q = Queue(name: "myqueue", kind: .Concurrent)
 
          q.async { () -> Void in
-    
+
             Queue.current.async {
                 XCTAssertTrue(q.isCurrent, "The custom queue should be current")
                 expt.fulfill()
