@@ -41,8 +41,18 @@ public struct Semaphore {
     }
 
     //MARK: - Semaphore core method
-    public func wait(time: NSTimeInterval? = nil) -> Bool {
-        return dispatch_semaphore_wait(semaphore, dispatch_time_t(timeInterval: time)) == 0
+    public func wait(time someTime: NSTimeInterval? = nil) -> Bool {
+        let dispatchTime: dispatch_time_t
+        
+        if let time = someTime {
+            dispatchTime = dispatch_time(
+                DISPATCH_TIME_NOW,
+                Int64(time.nanosecondsRepresentation))
+        } else {
+            dispatchTime = DISPATCH_TIME_FOREVER
+        }
+        
+        return dispatch_semaphore_wait(semaphore, dispatchTime) == 0
     }
 
     public func signal() -> Bool {
@@ -63,8 +73,8 @@ public extension Semaphore {
 
 //MARK: - Edsger Dijkstra naming - Dutch
 public extension Semaphore {
-    public func P(time: NSTimeInterval? = nil) -> Bool {
-        return self.wait(time)
+    public func P(time time: NSTimeInterval? = nil) -> Bool {
+        return self.wait(time: time)
     }
     public func V()  -> Bool {
         return self.signal()
