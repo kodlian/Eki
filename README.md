@@ -1,5 +1,5 @@
 
-# Eki #
+# DEPRECATED Eki # Swift 3+ offer a new elegant api for dispatch that makes EKI useless
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat
             )](http://mit-license.org)
